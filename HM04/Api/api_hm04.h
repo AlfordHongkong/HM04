@@ -45,9 +45,15 @@ typedef struct {
     
 }hm04_t;
 
-
+/**
+ * @brief Initialize the whole device
+ * 
+ * @return uint8_t 
+ */
 uint8_t InitHM04(void);
 
+uint8_t TurnOnHM04(void);
+uint8_t TurnOffHM04(void);
 
 
 

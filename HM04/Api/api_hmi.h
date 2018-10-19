@@ -13,6 +13,8 @@
 #define API_HMI_H
 
 #include "stm32f1xx_hal.h"
+#include "bsp_gpio.h"
+
 
 /**
  * @brief indicate whether the key is released or pressed.
@@ -74,6 +76,21 @@ void ReadKeys(fptrReadKey_t read_keys_func_array[],
               fptrKeysDetectionCallback_t keys_detect_callback);
 
 
+
+
+/*======================================================================
+                    Indicators / Leds
+======================================================================*/
+/**
+ * @brief 
+ *      Just refer the api from bsp. 
+ *      ex:  TurnOnled(x); TurnOffled(x);
+ *      x could be led_wifi, led_on, led_1h, led_2h
+ * 
+ */
+
 #endif
+
+
 
 

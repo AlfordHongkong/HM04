@@ -11,7 +11,6 @@
 
 
 #include "api_hmi.h"
-#include "bsp_gpio.h"
 #include <stdint.h>
 
 

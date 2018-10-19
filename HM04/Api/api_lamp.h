@@ -10,7 +10,10 @@
 #define API_LAMP_H
 
 #include <stdint.h>
-
+#include "bsp_lamp.h"
+/*==============================================================
+                        Data types
+==============================================================*/
 /**
  * @brief lamp status
  * 
@@ -64,13 +67,31 @@ typedef struct {
     
 } lamp_t;
 
-lamp_t GetLampStruct(void);
+
+/*==============================================================
+                        Function declare
+==============================================================*/
+
+/**
+ * @brief Initialize the data related with lamp
+ * 
+ */
+void InitLamp(void);
+
+/**
+ * @brief Get the Lamp object
+ * 
+ * @return lamp_t* 
+ */
+lamp_t* GetLamp(void);
+
+
 uint8_t SetLampBrightness(uint8_t);
-uint8_t TurnLampOn(void);
-uint8_t TurnLampOff(void);
-uint8_t ChangeLampMode(lamp_mode_t mode);
+uint8_t TurnOnLamp(void);
+uint8_t TurnOffLamp(void);
+uint8_t SetLampMode(lamp_mode_t mode);
 uint8_t SetLampColor(color_group_t color);
-uint8_t ChangeScenario(scenario_t scenario);
+uint8_t SetScenario(scenario_t scenario);
 
 
 

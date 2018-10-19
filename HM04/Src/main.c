@@ -413,6 +413,8 @@ void StartDefaultTask(void const * argument)
   /* USER CODE BEGIN 5 */
   //StartSystemMessage();
   // TestLampPwm();
+
+  InitHM04();
   /* Infinite loop */
   for(;;)
   {

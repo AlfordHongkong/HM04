@@ -11,6 +11,8 @@
 
 #include "api_hmi.h"
 #include "bsp_gpio.h"
+#include "api_mist.h"
+#include "api_lamp.h"
 #include <stdint.h>
 
 
@@ -71,7 +73,12 @@ void KeysCallback(key_state_t keys_state[], uint8_t keys_hold_acc[]){
             else{
                 if(keys_hold_acc[i]>0 && keys_hold_acc[i]<10){
                     ///< it's a click
-                	ToggleLed(led_2h);
+                	if(isMistStarted()){
+                        StopMisting();
+                    }
+                    else{
+                        StartMisting();
+                    }
                 }
             }
             break;
