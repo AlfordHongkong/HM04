@@ -52,8 +52,11 @@ typedef struct {
  */
 uint8_t InitHM04(void);
 
+uint8_t SetHm04Status(hm04_status_t status);
+
 uint8_t TurnOnHM04(void);
 uint8_t TurnOffHM04(void);
+uint8_t IsHm04TurnedOn(void);
 
 
 

@@ -187,7 +187,9 @@ portBASE_TYPE xReturned;
 
 		/* Only interested in reading one character at a time. */
 //		FreeRTOS_read( xConsoleUART, &cRxedChar, sizeof( cRxedChar ) );
-		HAL_UART_Receive(&UART4CLI, (uint8_t *) &cRxedChar, sizeof( cRxedChar ), 0xFFFFFFFF );
+		if (HAL_OK == HAL_UART_Receive(&UART4CLI, (uint8_t *) &cRxedChar, sizeof( cRxedChar ), 0xFFFFFFFF )){
+			HAL_UART_Transmit(&UART4CLI, (uint8_t *) &cRxedChar, sizeof( cRxedChar ), sizeof( cRxedChar ) );
+		}
 
 		/* Echo the character back. */
 //		if( FreeRTOS_ioctl( xConsoleUART, ioctlOBTAIN_WRITE_MUTEX, cmd50ms ) == pdPASS )
@@ -196,10 +198,10 @@ portBASE_TYPE xReturned;
 //		}
 
 				/* send back the character just recieved */
-		//if(UART_CheckIdleState(&UART4CLI) == HAL_OK)
-		{
-			HAL_UART_Transmit(&UART4CLI, (uint8_t *) &cRxedChar, sizeof( cRxedChar ), sizeof( cRxedChar ) );
-		}
+		// if(UART_CheckIdleState(&UART4CLI) == HAL_OK)
+		// {
+		// 	HAL_UART_Transmit(&UART4CLI, (uint8_t *) &cRxedChar, sizeof( cRxedChar ), sizeof( cRxedChar ) );
+		// }
                 /* \r means got the last character of a command */
 		if( cRxedChar == '\r' )
 		{

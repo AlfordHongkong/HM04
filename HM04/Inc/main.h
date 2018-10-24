@@ -61,6 +61,10 @@
 
 #define key_pair_Pin GPIO_PIN_0
 #define key_pair_GPIO_Port GPIOA
+#define wifi_tx_Pin GPIO_PIN_2
+#define wifi_tx_GPIO_Port GPIOA
+#define wifi_rx_Pin GPIO_PIN_3
+#define wifi_rx_GPIO_Port GPIOA
 #define led_wifi_Pin GPIO_PIN_6
 #define led_wifi_GPIO_Port GPIOA
 #define led_on_Pin GPIO_PIN_7
@@ -73,10 +77,10 @@
 #define key_mist_GPIO_Port GPIOB
 #define key_lamp_Pin GPIO_PIN_1
 #define key_lamp_GPIO_Port GPIOB
-#define lamp_white_Pin GPIO_PIN_14
-#define lamp_white_GPIO_Port GPIOB
-#define lamp_yellow_Pin GPIO_PIN_15
+#define lamp_yellow_Pin GPIO_PIN_10
 #define lamp_yellow_GPIO_Port GPIOB
+#define lamp_white_Pin GPIO_PIN_11
+#define lamp_white_GPIO_Port GPIOB
 #define lamp_blue_Pin GPIO_PIN_6
 #define lamp_blue_GPIO_Port GPIOC
 #define lamp_red_Pin GPIO_PIN_7

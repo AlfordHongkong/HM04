@@ -11,6 +11,7 @@
 
 
 #include "api_hmi.h"
+#include "cmsis_os.h"
 #include <stdint.h>
 
 
@@ -77,4 +78,13 @@ key_state_t ReadKeyPair(void){
     }
     else 
         return RELEASE;
+}
+
+extern osTimerId PairingHmiTimerHandle;
+void StartPairing_hmi(void){
+    osTimerStart(PairingHmiTimerHandle, 100);
+}
+
+void StopPairing_hmi(void){
+
 }

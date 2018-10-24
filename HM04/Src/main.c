@@ -55,19 +55,33 @@
 #include "bsp_gpio.h"
 #include "bsp_lamp.h"
 #include "app.h"
+#include "fsm.h"
+
+#include "api_hm04.h"
+#include "api_lamp.h"
+#include "gizwits.h"
+#include "gizwits_product.h"
+#include "gizwits_protocol.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
+TIM_HandleTypeDef htim7;
 
 UART_HandleTypeDef huart4;
 UART_HandleTypeDef huart1;
+UART_HandleTypeDef huart2;
 
 osThreadId defaultTaskHandle;
 osThreadId LightsTaskHandle;
 osThreadId CliTaskHandle;
 osThreadId FsmTaskHandle;
 osThreadId KeysTaskHandle;
+osThreadId GizwitsTaskHandle;
+osMessageQId eventsQueueHandle;
+osTimerId PairingHmiTimerHandle;
+osTimerId LampDynamicTimerHandle;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -80,12 +94,19 @@ static void MX_GPIO_Init(void);
 static void MX_UART4_Init(void);
 static void MX_USART1_UART_Init(void);
 static void MX_TIM3_Init(void);
+static void MX_USART2_UART_Init(void);
+static void MX_TIM7_Init(void);
+static void MX_TIM2_Init(void);
 void StartDefaultTask(void const * argument);
 void StartLightsTask(void const * argument);
 void StartCliTask(void const * argument);
 void StartFsmTask(void const * argument);
-void StartKeysTask(void const * argument);                                    
+void StartKeysTask(void const * argument);
+void StartGizwitsTask(void const * argument);
+void PairingHmiCallback(void const * argument);
+void LampDynamicCallback(void const * argument);                                    
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
+                                
                                 
 
 /* USER CODE BEGIN PFP */
@@ -130,6 +151,9 @@ int main(void)
   MX_UART4_Init();
   MX_USART1_UART_Init();
   MX_TIM3_Init();
+  MX_USART2_UART_Init();
+  MX_TIM7_Init();
+  MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
   vRegisterCLICommands();
   //InitLampPWM();
@@ -142,6 +166,15 @@ int main(void)
   /* USER CODE BEGIN RTOS_SEMAPHORES */
   /* add semaphores, ... */
   /* USER CODE END RTOS_SEMAPHORES */
+
+  /* Create the timer(s) */
+  /* definition and creation of PairingHmiTimer */
+  osTimerDef(PairingHmiTimer, PairingHmiCallback);
+  PairingHmiTimerHandle = osTimerCreate(osTimer(PairingHmiTimer), osTimerPeriodic, NULL);
+
+  /* definition and creation of LampDynamicTimer */
+  osTimerDef(LampDynamicTimer, LampDynamicCallback);
+  LampDynamicTimerHandle = osTimerCreate(osTimer(LampDynamicTimer), osTimerPeriodic, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -168,9 +201,19 @@ int main(void)
   osThreadDef(KeysTask, StartKeysTask, osPriorityNormal, 0, 128);
   KeysTaskHandle = osThreadCreate(osThread(KeysTask), NULL);
 
+  /* definition and creation of GizwitsTask */
+  osThreadDef(GizwitsTask, StartGizwitsTask, osPriorityNormal, 0, 128);
+  GizwitsTaskHandle = osThreadCreate(osThread(GizwitsTask), NULL);
+
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
   /* USER CODE END RTOS_THREADS */
+
+  /* Create the queue(s) */
+  /* definition and creation of eventsQueue */
+/* what about the sizeof here??? cd native code */
+  osMessageQDef(eventsQueue, 16, uint16_t);
+  eventsQueueHandle = osMessageCreate(osMessageQ(eventsQueue), NULL);
 
   /* USER CODE BEGIN RTOS_QUEUES */
   /* add queues, ... */
@@ -246,6 +289,49 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 }
 
+/* TIM2 init function */
+static void MX_TIM2_Init(void)
+{
+
+  TIM_MasterConfigTypeDef sMasterConfig;
+  TIM_OC_InitTypeDef sConfigOC;
+
+  htim2.Instance = TIM2;
+  htim2.Init.Prescaler = 29;
+  htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim2.Init.Period = 255;
+  htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
+  htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
+  if (HAL_TIM_PWM_Init(&htim2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim2, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigOC.OCMode = TIM_OCMODE_PWM1;
+  sConfigOC.Pulse = 0;
+  sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
+  sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  if (HAL_TIM_PWM_ConfigChannel(&htim2, &sConfigOC, TIM_CHANNEL_4) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  HAL_TIM_MspPostInit(&htim2);
+
+}
+
 /* TIM3 init function */
 static void MX_TIM3_Init(void)
 {
@@ -272,7 +358,7 @@ static void MX_TIM3_Init(void)
   }
 
   sConfigOC.OCMode = TIM_OCMODE_PWM1;
-  sConfigOC.Pulse = 22;
+  sConfigOC.Pulse = 0;
   sConfigOC.OCPolarity = TIM_OCPOLARITY_HIGH;
   sConfigOC.OCFastMode = TIM_OCFAST_DISABLE;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_1) != HAL_OK)
@@ -280,19 +366,42 @@ static void MX_TIM3_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  sConfigOC.Pulse = 44;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  sConfigOC.Pulse = 66;
   if (HAL_TIM_PWM_ConfigChannel(&htim3, &sConfigOC, TIM_CHANNEL_3) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
 
   HAL_TIM_MspPostInit(&htim3);
+
+}
+
+/* TIM7 init function */
+static void MX_TIM7_Init(void)
+{
+
+  TIM_MasterConfigTypeDef sMasterConfig;
+
+  htim7.Instance = TIM7;
+  htim7.Init.Prescaler = 71;
+  htim7.Init.CounterMode = TIM_COUNTERMODE_UP;
+  htim7.Init.Period = 999;
+  htim7.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
+  if (HAL_TIM_Base_Init(&htim7) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
+  sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
+  if (HAL_TIMEx_MasterConfigSynchronization(&htim7, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
 
 }
 
@@ -334,6 +443,25 @@ static void MX_USART1_UART_Init(void)
 
 }
 
+/* USART2 init function */
+static void MX_USART2_UART_Init(void)
+{
+
+  huart2.Instance = USART2;
+  huart2.Init.BaudRate = 9600;
+  huart2.Init.WordLength = UART_WORDLENGTH_8B;
+  huart2.Init.StopBits = UART_STOPBITS_1;
+  huart2.Init.Parity = UART_PARITY_NONE;
+  huart2.Init.Mode = UART_MODE_TX_RX;
+  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
+  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
+  if (HAL_UART_Init(&huart2) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
 /** Configure pins as 
         * Analog 
         * Input 
@@ -357,9 +485,6 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOC, led_1h_Pin|led_2h_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, lamp_white_Pin|lamp_yellow_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(fan_GPIO_Port, fan_Pin, GPIO_PIN_RESET);
@@ -393,13 +518,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : lamp_white_Pin lamp_yellow_Pin */
-  GPIO_InitStruct.Pin = lamp_white_Pin|lamp_yellow_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
 }
 
 /* USER CODE BEGIN 4 */
@@ -415,6 +533,7 @@ void StartDefaultTask(void const * argument)
   // TestLampPwm();
 
   InitHM04();
+  InitGizwits();
   /* Infinite loop */
   for(;;)
   {
@@ -447,7 +566,11 @@ void StartCliTask(void const * argument)
 {
   /* USER CODE BEGIN StartCliTask */
   /* Infinite loop */
-  prvUARTCommandConsoleTask(NULL);
+  //prvUARTCommandConsoleTask(NULL);
+  for(;;)
+  {
+    osDelay(100);
+  }
   /* USER CODE END StartCliTask */
 }
 
@@ -458,7 +581,8 @@ void StartFsmTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
-    osDelay(100);
+    StartFSM();
+    osDelay(10);
   }
   /* USER CODE END StartFsmTask */
 }
@@ -478,6 +602,37 @@ void StartKeysTask(void const * argument)
   /* USER CODE END StartKeysTask */
 }
 
+/* StartGizwitsTask function */
+void StartGizwitsTask(void const * argument)
+{
+  /* USER CODE BEGIN StartGizwitsTask */
+  extern dataPoint_t currentDataPoint;
+  /* Infinite loop */
+  for(;;)
+  {
+    userHandle();
+    gizwitsHandle((dataPoint_t *)&currentDataPoint);
+    osDelay(50);
+  }
+  /* USER CODE END StartGizwitsTask */
+}
+
+/* PairingHmiCallback function */
+void PairingHmiCallback(void const * argument)
+{
+  /* USER CODE BEGIN PairingHmiCallback */
+  ToggleLed(led_wifi);
+  /* USER CODE END PairingHmiCallback */
+}
+
+/* LampDynamicCallback function */
+void LampDynamicCallback(void const * argument)
+{
+  /* USER CODE BEGIN LampDynamicCallback */
+  LampDynamicCallbackFromApiLamp();
+  /* USER CODE END LampDynamicCallback */
+}
+
 /**
   * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM1 interrupt took place, inside
@@ -486,18 +641,18 @@ void StartKeysTask(void const * argument)
   * @param  htim : TIM handle
   * @retval None
   */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-  /* USER CODE BEGIN Callback 0 */
-
-  /* USER CODE END Callback 0 */
-  if (htim->Instance == TIM1) {
-    HAL_IncTick();
-  }
-  /* USER CODE BEGIN Callback 1 */
-
-  /* USER CODE END Callback 1 */
-}
+//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+//{
+//  /* USER CODE BEGIN Callback 0 */
+//////
+//  /* USER CODE END Callback 0 */
+//  if (htim->Instance == TIM1) {
+//    HAL_IncTick();
+//  }
+//  /* USER CODE BEGIN Callback 1 */
+//////
+//  /* USER CODE END Callback 1 */
+//}
 
 /**
   * @brief  This function is executed in case of error occurrence.

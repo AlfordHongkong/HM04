@@ -29,6 +29,8 @@ typedef enum {
  * 
  */
 typedef enum {
+    white_mode,
+    yellow_mode,
     static_mode,
     dynamic_mode,
     scenario_mode,
@@ -61,8 +63,8 @@ typedef enum {
 typedef struct {
     lamp_status_t status;
     lamp_mode_t mode;
-    color_group_t last_static_color;
-    scenario_t last_scenario;
+    color_group_t static_color;
+    scenario_t scenario;
     uint8_t brightness_percent;
     
 } lamp_t;
@@ -84,13 +86,21 @@ void InitLamp(void);
  * @return lamp_t* 
  */
 lamp_t* GetLamp(void);
-
+lamp_status_t GetLampStatus(void);
+uint8_t IsLampTurnedOn(void);
 
 uint8_t SetLampBrightness(uint8_t);
 uint8_t TurnOnLamp(void);
 uint8_t TurnOffLamp(void);
-uint8_t SetLampMode(lamp_mode_t mode);
+uint8_t SwitchLampMode(lamp_mode_t mode);
+void LampDynamicCallbackFromApiLamp(void);
+uint8_t StartDynamicMode(void);
+uint8_t StopDynamicMode(void);
+void Do4KeyLampPressed(void);
+
 uint8_t SetLampColor(color_group_t color);
+uint8_t SetLampWhite(uint8_t brightness);
+uint8_t SetLampYellow(uint8_t brightness);
 uint8_t SetScenario(scenario_t scenario);
 
 

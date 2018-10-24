@@ -13,7 +13,13 @@
 #include "bsp_gpio.h"
 #include "api_mist.h"
 #include "api_lamp.h"
+#include "fsm.h"
+#include "cmsis_os.h"
+#include "gizwits_protocol.h"
 #include <stdint.h>
+
+
+extern osMessageQId eventsQueueHandle;
 
 
 
@@ -52,6 +58,8 @@ fptrReadKey_t * GetReadKeysFuncs(void){
  */
 void KeysCallback(key_state_t keys_state[], uint8_t keys_hold_acc[]){
     
+    event_t e;
+    ///
     for(uint8_t i=0; i<KEYS_NUM; i++){
         switch(i){
             case KEY_LAMP_ORDER:
@@ -61,8 +69,8 @@ void KeysCallback(key_state_t keys_state[], uint8_t keys_hold_acc[]){
             else{
                 if(keys_hold_acc[i]>0 && keys_hold_acc[i]<10){
                     /// it's a click
-                	ToggleLed(led_1h);
-                }
+                    e = EVENT_LAMP_KEY_SHORT;
+                    xQueueSend(eventsQueueHandle, &e, 10);                }
             }
             break;
 
@@ -72,25 +80,24 @@ void KeysCallback(key_state_t keys_state[], uint8_t keys_hold_acc[]){
             }
             else{
                 if(keys_hold_acc[i]>0 && keys_hold_acc[i]<10){
-                    ///< it's a click
-                	if(isMistStarted()){
-                        StopMisting();
-                    }
-                    else{
-                        StartMisting();
-                    }
+                    e = EVENT_MIST_KEY_SHORT;
+                    xQueueSend(eventsQueueHandle, &e, 10);
                 }
             }
             break;
 
             case KEY_PAIR_ORDER:
+            /// when the key is being hold.
             if(keys_state[i] == HOLD){
-            	ToggleLed(led_on);
+            	if(keys_hold_acc[i] == 40){
+                    e = EVENT_PAIR_KEY_LONG;
+                    xQueueSend(eventsQueueHandle, &e, 10);
+                }
             }
             else{
                 if(keys_hold_acc[i]>0 && keys_hold_acc[i]<10){
-
-                    ToggleLed(led_wifi);
+                    e = EVENT_PAIR_KEY_SHORT;
+                    xQueueSend(eventsQueueHandle, &e, 10);
                 }
             }
             break;

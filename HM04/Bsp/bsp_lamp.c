@@ -12,13 +12,17 @@
 #include "bsp_lamp.h"
 #include "stm32f1xx_hal.h"
 
-
+extern TIM_HandleTypeDef htim2;
 extern TIM_HandleTypeDef htim3;
 
 #define htim_lamp_rgb htim3
 #define TIM_CHANNEL_RED TIM_CHANNEL_2
 #define TIM_CHANNEL_GREEN TIM_CHANNEL_3
 #define TIM_CHANNEL_BLUE TIM_CHANNEL_1
+
+#define htim_lamp_wy htim2
+#define TIM_CHANNEL_WHITE TIM_CHANNEL_4
+#define TIM_CHANNEL_YELLOW TIM_CHANNEL_3
 
 /**
  * @brief start the PWM output
@@ -28,6 +32,8 @@ void InitLampPWM(void){
     HAL_TIM_PWM_Start(&htim_lamp_rgb, TIM_CHANNEL_RED);
     HAL_TIM_PWM_Start(&htim_lamp_rgb, TIM_CHANNEL_GREEN);
     HAL_TIM_PWM_Start(&htim_lamp_rgb, TIM_CHANNEL_BLUE);
+    HAL_TIM_PWM_Start(&htim_lamp_wy, TIM_CHANNEL_WHITE);
+    HAL_TIM_PWM_Start(&htim_lamp_wy, TIM_CHANNEL_YELLOW);
 }
 
 /**
@@ -61,9 +67,13 @@ void SetLampPWM(which_lamp_t lamp, uint8_t pwm_pulse){
         break;
 
         case lamp_white:
+        HAL_TIM_PWM_ConfigChannel(&htim_lamp_wy, &sConfigOC, TIM_CHANNEL_WHITE);
+        HAL_TIM_PWM_Start(&htim_lamp_wy, TIM_CHANNEL_WHITE);
         break;
 
         case lamp_yellow:
+        HAL_TIM_PWM_ConfigChannel(&htim_lamp_wy, &sConfigOC, TIM_CHANNEL_YELLOW);
+        HAL_TIM_PWM_Start(&htim_lamp_wy, TIM_CHANNEL_YELLOW);
         break;
 
         default:
