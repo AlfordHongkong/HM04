@@ -98,6 +98,7 @@ uint8_t StartDynamicMode(void);
 uint8_t StopDynamicMode(void);
 void Do4KeyLampPressed(void);
 
+color_group_t GetLampColor(void);
 uint8_t SetLampColor(color_group_t color);
 uint8_t SetLampWhite(uint8_t brightness);
 uint8_t SetLampYellow(uint8_t brightness);

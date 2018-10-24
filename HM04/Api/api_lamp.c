@@ -131,31 +131,31 @@ uint8_t TurnOffLamp(void){
 uint8_t SwitchLampMode(lamp_mode_t mode){
     /// first, turn off all lam;
     TurnOffLamp();
-    switch(mode){
-        case white_mode:
-        SetLampPWM(lamp_white, lamp.brightness_percent);
-        break;
+    // switch(mode){
+    //     case white_mode:
+    //     SetLampPWM(lamp_white, lamp.brightness_percent);
+    //     break;
 
-        case yellow_mode:
-        SetLampPWM(lamp_yellow, lamp.brightness_percent);
-        break;
+    //     case yellow_mode:
+    //     SetLampPWM(lamp_yellow, lamp.brightness_percent);
+    //     break;
 
-        case dynamic_mode:
-        StartDynamicMode();
-        break;
+    //     case dynamic_mode:
+    //     StartDynamicMode();
+    //     break;
 
-        case static_mode:
-        SetLampPWM(lamp_red, lamp.static_color.r);
-        SetLampPWM(lamp_green, lamp.static_color.r);
-        SetLampPWM(lamp_blue, lamp.static_color.r);
-        break;
+    //     case static_mode:
+    //     SetLampPWM(lamp_red, lamp.static_color.r);
+    //     SetLampPWM(lamp_green, lamp.static_color.r);
+    //     SetLampPWM(lamp_blue, lamp.static_color.r);
+    //     break;
 
-        case scenario_mode:
-        break;
+    //     case scenario_mode:
+    //     break;
 
-        default:
-        break;
-    }
+    //     default:
+    //     break;
+    // }
 
     /// at least, change the setting
     lamp.mode = mode;
@@ -218,18 +218,20 @@ void Do4KeyLampPressed(void){
 }
 
 
+color_group_t GetLampColor(void){
+    return lamp.static_color;
+}
 
-// uint8_t SetLampColor(color_group_t color){
-//     /// when the color is white and yellow
+uint8_t SetLampColor(color_group_t color){
+    /// when the color is white and yellow
+    lamp.static_color = color;
+
+    /// when the color is not white and yellow
+
+    return 1;
+}
 
 
-//     /// when the color is not white and yellow
-//     SetLampPWM(lamp_red, color.r);
-//     SetLampPWM(lamp_green, color.g);
-//     SetLampPWM(lamp_blue, color.b);
-
-//     return 1;
-// }
 
 // uint8_t SetLampWhite(uint8_t brightness){
 //     SetLampPWM(lamp_white, brightness);
