@@ -20,8 +20,8 @@
  * 
  * @ex: HAL_GPIO_WritePin(led_wifi_GPIO_Port, led_wifi_Pin, GPIO_PIN_RESET); 
  */
-#define TurnOnLed(x) HAL_GPIO_WritePin(x##_GPIO_Port, x##_Pin, GPIO_PIN_SET)
-#define TurnOffLed(x) HAL_GPIO_WritePin(x##_GPIO_Port, x##_Pin, GPIO_PIN_RESET)
+#define TurnOnLed(x) HAL_GPIO_WritePin(x##_GPIO_Port, x##_Pin, GPIO_PIN_RESET)
+#define TurnOffLed(x) HAL_GPIO_WritePin(x##_GPIO_Port, x##_Pin, GPIO_PIN_SET)
 #define ToggleLed(x) HAL_GPIO_TogglePin(x##_GPIO_Port, x##_Pin)
 
 #define TurnOnFan() HAL_GPIO_WritePin(fan_GPIO_Port, fan_Pin, GPIO_PIN_SET)

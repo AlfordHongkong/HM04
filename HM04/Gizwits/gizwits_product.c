@@ -115,7 +115,10 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
         }
         else
         {
-          //user handle    
+          //user handle   
+          /// it's general off 
+          TurnOffLamp();
+          StopMisting();
         }
         break;
 
@@ -137,20 +140,23 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
       case EVENT_lamp_mode:
         currentDataPoint.valuelamp_mode = dataPointPtr->valuelamp_mode;
         GIZWITS_LOG("Evt: EVENT_lamp_mode %d\n", currentDataPoint.valuelamp_mode);
-        switch(currentDataPoint.valuelamp_mode)
-        {
-          case lamp_mode_VALUE0:
-            //user handle
-            break;
-          case lamp_mode_VALUE1:
-            //user handle
-            break;
-          case lamp_mode_VALUE2:
-            //user handle
-            break;
-          default:
-            break;
-        }
+        lamp_mode_t mode;
+        mode = currentDataPoint.valuelamp_mode;
+        SwitchLampMode(mode);
+        // switch(currentDataPoint.valuelamp_mode)
+        // {
+        //   case lamp_mode_VALUE0:
+        //     //user handle
+        //     break;
+        //   case lamp_mode_VALUE1:
+        //     //user handle
+        //     break;
+        //   case lamp_mode_VALUE2:
+        //     //user handle
+        //     break;
+        //   default:
+        //     break;
+        // }
         break;
       case EVENT_scenario:
         currentDataPoint.valuescenario = dataPointPtr->valuescenario;
@@ -182,35 +188,41 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
       case EVENT_mist_mode:
         currentDataPoint.valuemist_mode = dataPointPtr->valuemist_mode;
         GIZWITS_LOG("Evt: EVENT_mist_mode %d\n", currentDataPoint.valuemist_mode);
-        switch(currentDataPoint.valuemist_mode)
-        {
-          case mist_mode_VALUE0:
-            //user handle
-            break;
-          case mist_mode_VALUE1:
-            //user handle
-            break;
-          default:
-            break;
-        }
+        mist_mode_t mistMode;
+        mistMode = currentDataPoint.valuemist_mode;
+        SwitchMistMode(mistMode);
+        // switch(currentDataPoint.valuemist_mode)
+        // {
+        //   case mist_mode_VALUE0:
+        //     //user handle
+        //     break;
+        //   case mist_mode_VALUE1:
+        //     //user handle
+        //     break;
+        //   default:
+        //     break;
+        // }
         break;
       case EVENT_mist_timer:
         currentDataPoint.valuemist_timer = dataPointPtr->valuemist_timer;
         GIZWITS_LOG("Evt: EVENT_mist_timer %d\n", currentDataPoint.valuemist_timer);
-        switch(currentDataPoint.valuemist_timer)
-        {
-          case mist_timer_VALUE0:
-            //user handle
-            break;
-          case mist_timer_VALUE1:
-            //user handle
-            break;
-          case mist_timer_VALUE2:
-            //user handle
-            break;
-          default:
-            break;
-        }
+        mist_timer_t timer;
+        timer = currentDataPoint.valuemist_timer;
+        SwitchMistTimer(timer);
+        // switch(currentDataPoint.valuemist_timer)
+        // {
+        //   case mist_timer_VALUE0:
+        //     //user handle
+        //     break;
+        //   case mist_timer_VALUE1:
+        //     //user handle
+        //     break;
+        //   case mist_timer_VALUE2:
+        //     //user handle
+        //     break;
+        //   default:
+        //     break;
+        // }
         break;
       case EVENT_speaker_status:
         currentDataPoint.valuespeaker_status = dataPointPtr->valuespeaker_status;
@@ -437,16 +449,16 @@ void mcuRestart(void)
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  static int i = 0;
+  // static int i = 0;
 	if(htim==&htim_gizwits)
 	{
 			// keyHandle((keysTypedef_t *)&keys);
 			gizTimerMs();
 
-      if(i++ >= 1000){
-        i = 0;
-        ToggleLed(led_1h);
-      }
+      // if(i++ >= 1000){
+      //   i = 0;
+      //   ToggleLed(led_1h);
+      // }
 	}
 }
 

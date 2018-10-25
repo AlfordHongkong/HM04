@@ -59,6 +59,7 @@
 
 #include "api_hm04.h"
 #include "api_lamp.h"
+#include "api_mist.h"
 #include "gizwits.h"
 #include "gizwits_product.h"
 #include "gizwits_protocol.h"
@@ -82,6 +83,9 @@ osThreadId GizwitsTaskHandle;
 osMessageQId eventsQueueHandle;
 osTimerId PairingHmiTimerHandle;
 osTimerId LampDynamicTimerHandle;
+osTimerId MistTimerHandle;
+osTimerId MistIntermittentTimerHandle;
+osTimerId TurnOffMistingDelayTimerHandle;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -104,7 +108,10 @@ void StartFsmTask(void const * argument);
 void StartKeysTask(void const * argument);
 void StartGizwitsTask(void const * argument);
 void PairingHmiCallback(void const * argument);
-void LampDynamicCallback(void const * argument);                                    
+void LampDynamicCallback(void const * argument);
+void MistTimerCallback(void const * argument);
+void IntermittentCallback(void const * argument);
+void TurnOffMistingCallback(void const * argument);                                    
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
                                 
@@ -157,6 +164,16 @@ int main(void)
   /* USER CODE BEGIN 2 */
   vRegisterCLICommands();
   //InitLampPWM();
+
+  // TurnOnLed(led_wifi);
+  // TurnOnLed(led_on);
+  // TurnOnLed(led_1h);
+  // TurnOnLed(led_2h);
+  // TurnOffLed(led_wifi);
+  // TurnOffLed(led_on);
+  // TurnOffLed(led_1h);
+  // TurnOffLed(led_2h);
+  
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -175,6 +192,18 @@ int main(void)
   /* definition and creation of LampDynamicTimer */
   osTimerDef(LampDynamicTimer, LampDynamicCallback);
   LampDynamicTimerHandle = osTimerCreate(osTimer(LampDynamicTimer), osTimerPeriodic, NULL);
+
+  /* definition and creation of MistTimer */
+  osTimerDef(MistTimer, MistTimerCallback);
+  MistTimerHandle = osTimerCreate(osTimer(MistTimer), osTimerOnce, NULL);
+
+  /* definition and creation of MistIntermittentTimer */
+  osTimerDef(MistIntermittentTimer, IntermittentCallback);
+  MistIntermittentTimerHandle = osTimerCreate(osTimer(MistIntermittentTimer), osTimerPeriodic, NULL);
+
+  /* definition and creation of TurnOffMistingDelayTimer */
+  osTimerDef(TurnOffMistingDelayTimer, TurnOffMistingCallback);
+  TurnOffMistingDelayTimerHandle = osTimerCreate(osTimer(TurnOffMistingDelayTimer), osTimerOnce, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -633,6 +662,30 @@ void LampDynamicCallback(void const * argument)
   /* USER CODE END LampDynamicCallback */
 }
 
+/* MistTimerCallback function */
+void MistTimerCallback(void const * argument)
+{
+  /* USER CODE BEGIN MistTimerCallback */
+  MistingTimerCallback_api_mist();
+  /* USER CODE END MistTimerCallback */
+}
+
+/* IntermittentCallback function */
+void IntermittentCallback(void const * argument)
+{
+  /* USER CODE BEGIN IntermittentCallback */
+  MistingIntermittentCallback_api_mist();
+  /* USER CODE END IntermittentCallback */
+}
+
+/* TurnOffMistingCallback function */
+void TurnOffMistingCallback(void const * argument)
+{
+  /* USER CODE BEGIN TurnOffMistingCallback */
+  StoppingMistingDelayCallback_api_mist();
+  /* USER CODE END TurnOffMistingCallback */
+}
+
 /**
   * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM1 interrupt took place, inside
@@ -644,13 +697,13 @@ void LampDynamicCallback(void const * argument)
 //void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //{
 //  /* USER CODE BEGIN Callback 0 */
-//////
+////////
 //  /* USER CODE END Callback 0 */
 //  if (htim->Instance == TIM1) {
 //    HAL_IncTick();
 //  }
 //  /* USER CODE BEGIN Callback 1 */
-//////
+////////
 //  /* USER CODE END Callback 1 */
 //}
 

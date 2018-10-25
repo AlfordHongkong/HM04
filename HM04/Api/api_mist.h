@@ -55,8 +55,11 @@ typedef struct {
     mist_status_t status;
     mist_mode_t mode;
     mist_timer_t timer;
-    uint8_t isWaterDeficient;
+    uint8_t flagWaterDeficient;
 }mist_t;
+
+#define TURN_OFF_MISTING_DELAY 10000 ///< when turn off misting, turn off mist immediately and turn off fan 10 seconds late.
+#define MISTING_INTERMITTENT_DURATION 15000
 
 /*=================================================================
                     Function Declaring
@@ -68,21 +71,10 @@ typedef struct {
  */
 void InitMist(void);
 
-/**
- * @brief 
- *      Turn on the fan and mist immediately.
- * 
- * @return uint8_t 
- */
-uint8_t TurnOnMistAndFan(void);
 
-/**
- * @brief 
- *      Turn on mist immediately and turn off fan 10s later to let the remainning mist dissipate.
- * 
- * @return uint8_t 
- */
-uint8_t TurnOffMistAndFan(void);
+void MistingIntermittentCallback_api_mist(void);
+void MistingTimerCallback_api_mist(void);
+void StoppingMistingDelayCallback_api_mist(void);
 
 /**
  * @brief start misting.
@@ -96,12 +88,17 @@ uint8_t StartMisting(void);
  * 
  */
 uint8_t StopMisting(void);
+#define TurnOffMistingDelayCallback_api_mist() TurnOffFan()
+uint8_t SwitchMistTimer(mist_timer_t timer);
+uint8_t SwitchMistMode(mist_mode_t mode);
 
-uint8_t isMistStarted(void);
+uint8_t IsMistStarted(void);
 
 
 uint8_t SetMistMode(mist_mode_t mode);
 uint8_t SetMistTimer(mist_timer_t timer);
 mist_t * GetMist(void);
+
+uint8_t Do4KeyMistPressed(void);
 
 #endif

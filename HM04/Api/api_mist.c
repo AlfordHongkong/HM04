@@ -12,6 +12,17 @@
 
 #include "api_mist.h"
 #include "bsp_gpio.h"
+#include "stm32f1xx_hal.h"
+#include "cmsis_os.h"
+
+
+extern osTimerId MistTimerHandle;
+extern osTimerId MistIntermittentTimerHandle;
+extern osTimerId TurnOffMistingDelayTimerHandle;
+
+
+uint8_t UpdateMistLeds(void);
+
 
 /**
  * @brief 
@@ -30,84 +41,337 @@ void InitMist(void){
     mist.mode = continuous;
     mist.timer = no_timer;
     mist.status = mist_off;
-    mist.isWaterDeficient = 0;
+    mist.flagWaterDeficient = 0;
 
 }
 
-/**
- * @brief 
- * 
- * @return uint8_t 
- */
-uint8_t TurnOnMistAndFan(void){
+/*===============================================================================
+                 software timers for application of misting
+===============================================================================*/
+
+#define StartStoppingMistingDelay() osTimerStart(TurnOffMistingDelayTimerHandle, TURN_OFF_MISTING_DELAY)
+#define StopStoppingMistingDelay() osTimerStop(TurnOffMistingDelayTimerHandle)
+// uint8_t StartStoppingMistingDelay(void){
+//     osTimerStart(TurnOffMistingDelayTimerHandle, TURN_OFF_MISTING_DELAY);
+// }
+// uint8_t StopStoppingMistingDelay(void){
+//     osTimerStop(TurnOffMistingDelayTimerHandle);
+// }
+
+osStatus StartMistTimer(uint8_t minutes){
+    osStatus timerStatus;
+
+    timerStatus = osTimerStart(MistTimerHandle, (minutes*1000*60));
+    
+    return timerStatus;
+}
+
+#define StopMistTimer()  osTimerStop(MistTimerHandle)
+// uint8_t StopMistTimer(void){
+//     osTimerStop(MistTimerHandle);
+//     return 1;
+// }
+
+#define StartIntermittentMode() osTimerStart(MistIntermittentTimerHandle, MISTING_INTERMITTENT_DURATION)
+#define StopIntermittentMode() osTimerStop(MistIntermittentTimerHandle)
+// uint8_t StartIntermittentMode(void){
+//     osTimerStart(MistIntermittentTimerHandle, MISTING_INTERMITTENT_DURATION);
+
+//     return 1;
+// }
+// uint8_t StopIntermittentMode(void){
+//     osTimerStop(MistIntermittentTimerHandle);
+
+//     return 1;
+// }
+
+/***************
+    callbacks
+****************/
+void MistingIntermittentCallback_api_mist(void){
+    static uint8_t i = 0;
+    if(i%2 == 0){
+        /// start fan and mist
+        TurnOnFan();
+        TurnOnMist();
+    }
+    else{ /// stop fan and mist
+        TurnOffFan();
+        TurnOffMist();
+    }
+    i++;
+}
+
+void MistingTimerCallback_api_mist(void){
+    StopMisting();
+}
+
+void StoppingMistingDelayCallback_api_mist(void){
+    TurnOffFan();
+}
+/*===============================================================================
+                            
+===============================================================================*/
+
+// /**
+//  * @brief 
+//  * 
+//  * @return uint8_t 
+//  */
+// uint8_t TurnOnMistAndFan(void){
+//     TurnOnFan();
+//     TurnOnMist();
+
+//     return 1;
+// }
+
+// /**
+//  * @brief 
+//  * 
+//  * @return uint8_t 
+//  */
+// uint8_t TurnOffMistAndFan(void){
+//     TurnOffMist();
+//     /// delay 10s to let the mist dissipating.
+//     osTimerStart(TurnOffMistingDelayTimerHandle, TURN_OFF_MISTING_DELAY);
+//     //TurnOffFan();
+
+//     return 1;
+// }
+
+
+
+uint8_t StartMisting(void){
+    osStatus timerStatus;
+    /// checking if lacking water
+    if(mist.flagWaterDeficient == 1)
+        return 0;
+
+    /// checking if the fan still not be turned off, after stop misting last time
+    StopStoppingMistingDelay();
+    if(timerStatus == osErrorResource){
+        /// it means the timer is not started. 
+    }
+    /// checking what mist_mode is
+    if(mist.mode == intermittent){
+        StartIntermittentMode();
+    }
+    /// checking what mist_timer is 
+    switch(mist.timer){
+        case no_timer:
+        break;
+        case timer_60min:
+        StartMistTimer(60);
+        break;
+        case timer_120min:
+        StartMistTimer(120);
+        break;
+
+        default:
+        break;
+    }
+    /// turn on fan and mist
     TurnOnFan();
     TurnOnMist();
 
-    return 1;
-}
-
-/**
- * @brief 
- * 
- * @return uint8_t 
- */
-uint8_t TurnOffMistAndFan(void){
-    TurnOffMist();
-    /// delay 10s to let the mist dissipating.
-
-    TurnOffFan();
-
-    return 1;
-}
-
-uint8_t StartMisting(void){
-    /// checking if lacking water
-    if(mist.isWaterDeficient == 1)
-        return 0;
-    /// checking what mist_mode is
-
-    /// checking what mist_timer is 
-
     /// change the setting
     mist.status = mist_on;
-    /// then do action
-    TurnOnMistAndFan();
-
+    /// update indicator leds
+    UpdateMistLeds();
     return 1;
 }
 
 uint8_t StopMisting(void){
-    /// change the setting
-    mist.status = mist_off;
-    /// then, do action
-    TurnOffMistAndFan();
+    //osStatus timerStatus;
+    if(mist.status == mist_on){
+        /// checking mode
+        if(mist.mode == intermittent){
+            StopIntermittentMode();
+        }
+        /// checking timer
+        if(mist.timer != no_timer){
+            StopMistTimer();
+        }
+        /// stop fan and mist
+        TurnOffMist();
+        /// delay 10s to let the mist dissipating.
+        StartStoppingMistingDelay();
+
+        mist.status = mist_off;
+
+        /// update indicator leds
+        UpdateMistLeds();
+    }
 
     return 1;
 }
 
-uint8_t SetMistMode(mist_mode_t mode){
-    /// first, change the setting
-    mist.mode = mode;
-    /// then actions
+uint8_t SwitchMistMode(mist_mode_t mode){
+    if(mist.status == mist_on){
+        if(mode == mist.mode){
+            /// nothing need to do.
+            return 0;
+        }
+        else{
+            /// switch the two modes
+            if(mist.mode == continuous){
+                StartIntermittentMode();
+                mist.mode = intermittent;
 
+                //return 1;
+            }
+            else if(mist.mode == intermittent){
+                StopIntermittentMode();
+                TurnOnFan();
+                TurnOnMist();
+                mist.mode = continuous;
+
+                //return 1;
+            }
+            else{
+                /// wrong mode
+                return 0;
+            }
+            /// update indicator leds
+            UpdateMistLeds();
+        }
+    }
+    else{
+        /// mist is turned off.
+        return 0;
+    }
+
+    return 1;
+}
+
+uint8_t SwitchMistTimer(mist_timer_t timer){
+    if(mist.status == mist_on){
+        if(timer == mist.timer){
+            /// nothing need to do
+            return 0;
+        }
+        else{
+            if(timer == timer_60min){
+                StartMistTimer(60);
+                mist.timer = timer_60min;
+
+                //return 1;
+            }
+            else if(timer == timer_120min){
+                StartMistTimer(120);
+                mist.timer = timer_120min;
+
+                //return 1;
+            }
+            else if(timer == no_timer){
+                StopMistTimer();
+                mist.timer = no_timer;
+
+                //return 1;
+            }
+            else{
+                /// wrong timer
+                return 0;
+            }
+            /// update indicator leds
+            UpdateMistLeds();
+        }
+    }
+    else {
+        /// mist is turned off
+        return 0;
+    }
+
+    return 1;
+}
+
+
+uint8_t Do4KeyMistPressed(void){
+    if(mist.status == mist_off){
+        StartMisting();
+    }
+    else if(mist.status == mist_on){
+        if(mist.mode == continuous){
+        	if(mist.timer == no_timer)
+        		SwitchMistMode(intermittent);
+        }
+        else if(mist.mode == intermittent){
+            SwitchMistMode(continuous);
+            SwitchMistTimer(timer_60min);
+            return 1;
+        }
+        else{
+            /// wrong mode
+            return 0;
+        }
+
+        if(mist.timer == timer_60min){
+            SwitchMistTimer(timer_120min);
+        }
+        else if(mist.timer == timer_120min){
+            SwitchMistTimer(no_timer);
+            StopMisting();
+        }
+        else {
+            /// wrong timer
+            return 0;
+        }
+
+    }
+    else {
+        /// wrong mist.status
+        return 0;
+    }
+
+    return 1;
+}
+
+uint8_t UpdateMistLeds(void){
+    if(mist.status == mist_off){
+        TurnOffLed(led_on);
+        TurnOffLed(led_1h);
+        TurnOffLed(led_2h);
+    }
+    else if(mist.status == mist_on){
+        if(mist.timer == no_timer){
+            TurnOffLed(led_on);
+            TurnOffLed(led_1h);
+            TurnOffLed(led_2h);
+            TurnOnLed(led_on);
+        }
+        else if(mist.timer == timer_60min){
+            TurnOffLed(led_on);
+            TurnOffLed(led_1h);
+            TurnOffLed(led_2h);
+            TurnOnLed(led_1h);
+        }
+        else if(mist.timer == timer_120min){
+            TurnOffLed(led_on);
+            TurnOffLed(led_1h);
+            TurnOffLed(led_2h);
+            TurnOnLed(led_2h);
+        }
+        else {
+            /// wrong timer
+            return 0;
+        }
+    }
+    else{
+        /// wrong status
+        return 0;
+    }
     
-    return 1;
-}
-
-uint8_t SetMistTimer(mist_timer_t timer){
-    /// first, change the setting
-    mist.timer = timer;
-    /// then actions
 
     return 1;
 }
+
 
 
 mist_t * GetMist(void){
     return &mist;
 }
 
-uint8_t isMistStarted(void){
+uint8_t IsMistStarted(void){
     if(mist.status == mist_on){
         return 1;
     }
@@ -115,3 +379,4 @@ uint8_t isMistStarted(void){
         return 0;
     }
 }
+
