@@ -29,11 +29,11 @@ typedef enum {
  * 
  */
 typedef enum {
-    white_mode,
-    yellow_mode,
     static_mode,
     dynamic_mode,
     scenario_mode,
+    white_mode,
+    yellow_mode,
     max_mode
 }lamp_mode_t;
 

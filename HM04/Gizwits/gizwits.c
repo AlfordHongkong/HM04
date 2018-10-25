@@ -83,6 +83,23 @@ void InitGizwits(void){
 					gizwitsEventProcess backup		
 =========================================================================*/
 
+
+
+// #include "api_lamp.h"
+// #include "api_mist.h"
+// #include "bsp_gpio.h"
+
+// static uint32_t timerMsCount;
+// uint8_t aRxBuffer;
+
+// /** User area the current device state structure*/
+// dataPoint_t currentDataPoint;
+// // extern keysTypedef_t keys;
+
+// extern TIM_HandleTypeDef htim_gizwits;
+// extern UART_HandleTypeDef huart_debug;
+// extern UART_HandleTypeDef huart_wifi;
+
 // /**@} */
 // /**@name Gizwits User Interface
 // * @{

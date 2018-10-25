@@ -19,8 +19,8 @@
 // #include "hal_key.h"
 #include "gizwits_product.h"
 #include "common.h"
-#include "gizwits.h"
 
+#include "gizwits.h"
 #include "api_lamp.h"
 #include "api_mist.h"
 #include "bsp_gpio.h"
@@ -88,8 +88,8 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
         }
         else
         {
-          //user handle   
-          TurnOffLamp(); 
+          //user handle    
+          TurnOffLamp();
         }
         break;
       case EVENT_mist_status:
@@ -118,7 +118,7 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
           //user handle   
           /// it's general off 
           TurnOffLamp();
-          StopMisting();
+          StopMisting(); 
         }
         break;
 
@@ -152,6 +152,12 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
         //     //user handle
         //     break;
         //   case lamp_mode_VALUE2:
+        //     //user handle
+        //     break;
+        //   case lamp_mode_VALUE3:
+        //     //user handle
+        //     break;
+        //   case lamp_mode_VALUE4:
         //     //user handle
         //     break;
         //   default:
@@ -272,6 +278,7 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
         currentDataPoint.valuelamp_brightness_percent = dataPointPtr->valuelamp_brightness_percent;
         GIZWITS_LOG("Evt:EVENT_lamp_brightness_percent %d\n",currentDataPoint.valuelamp_brightness_percent);
         //user handle
+        SetLampBrightness(currentDataPoint.valuelamp_brightness_percent);
         break;
       case EVENT_speaker_volum_percent:
         currentDataPoint.valuespeaker_volum_percent = dataPointPtr->valuespeaker_volum_percent;
@@ -281,10 +288,8 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
 
 
       case WIFI_SOFTAP:
-        GIZWITS_LOG("SoftAP event.\n");
         break;
       case WIFI_AIRLINK:
-        GIZWITS_LOG("AirLink event.\n");
         break;
       case WIFI_STATION:
         break;
@@ -338,13 +343,13 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
 */
 void userHandle(void)
 {
- 
-    currentDataPoint.valuehumidity = 1;//Add Sensor Data Collection
-    currentDataPoint.valueremaining_water_percent = 1;//Add Sensor Data Collection
-    currentDataPoint.valuetemperature = 1;//Add Sensor Data Collection
-    currentDataPoint.valueflag_water_shortage = 0;//Add Sensor Data Collection
+ /*
+    currentDataPoint.valuehumidity = ;//Add Sensor Data Collection
+    currentDataPoint.valueremaining_water_percent = ;//Add Sensor Data Collection
+    currentDataPoint.valuetemperature = ;//Add Sensor Data Collection
+    currentDataPoint.valueflag_water_shortage = ;//Add Sensor Data Collection
 
-    
+    */
     
 }
 
@@ -421,26 +426,26 @@ void mcuRestart(void)
 
 /**@} */
 
-// #ifdef __GNUC__
-//   /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
-//      set to 'Yes') calls __io_putchar() */
-//   #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
-// #else
-//   #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
-// #endif /* __GNUC__ */
-// /**
-//   * @brief  Retargets the C library printf function to the USART.
-//   * @param  None
-//   * @retval None
-//   */
-// PUTCHAR_PROTOTYPE
-// {
-//   /* Place your implementation of fputc here */
-//   /* e.g. write a character to the USART1 and Loop until the end of transmission */
-//   HAL_UART_Transmit(&huart_debug, (uint8_t *)&ch, 1, 0xFFFF);
+#ifdef __GNUC__
+  /* With GCC/RAISONANCE, small printf (option LD Linker->Libraries->Small printf
+     set to 'Yes') calls __io_putchar() */
+  #define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+  #define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif /* __GNUC__ */
+/**
+  * @brief  Retargets the C library printf function to the USART.
+  * @param  None
+  * @retval None
+  */
+PUTCHAR_PROTOTYPE
+{
+  /* Place your implementation of fputc here */
+  /* e.g. write a character to the USART1 and Loop until the end of transmission */
+  HAL_UART_Transmit(&huart_debug, (uint8_t *)&ch, 1, 0xFFFF);
  
-//   return ch;
-// }
+  return ch;
+}
 
 /**
   * @brief  Period elapsed callback in non blocking mode 
@@ -449,16 +454,10 @@ void mcuRestart(void)
   */
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-  // static int i = 0;
 	if(htim==&htim_gizwits)
 	{
-			// keyHandle((keysTypedef_t *)&keys);
+			//keyHandle((keysTypedef_t *)&keys);
 			gizTimerMs();
-
-      // if(i++ >= 1000){
-      //   i = 0;
-      //   ToggleLed(led_1h);
-      // }
 	}
 }
 
@@ -471,7 +470,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 void timerInit(void)
 {
 	HAL_TIM_Base_Start_IT(&htim_gizwits);
-} 
+}
+
 /**
   * @brief  This function handles USART IDLE interrupt.
   */

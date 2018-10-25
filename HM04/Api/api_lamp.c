@@ -20,9 +20,9 @@ extern osTimerId LampDynamicTimerHandle;
 
 
 
-#define DYNAMIC_BEGINNING_R  10
+#define DYNAMIC_BEGINNING_R  1
 #define DYNAMIC_BEGINNING_G  100
-#define DYNAMIC_BEGINNING_B  150
+#define DYNAMIC_BEGINNING_B  50
 
 
 void InitLamp(void){
@@ -62,10 +62,24 @@ uint8_t IsLampTurnedOn(void){
  * @return uint8_t 
  */
 uint8_t SetLampBrightness(uint8_t brightness){
-    /// first, change the setting
-    lamp.brightness_percent = brightness;
-    /// then, do the action
-
+    if(lamp.status == lamp_on){
+        if(lamp.mode == yellow_mode){
+            SetLampPWM(lamp_yellow, brightness);
+            lamp.brightness_percent = brightness;
+        }
+        else if(lamp.mode == white_mode){
+            SetLampPWM(lamp_white, brightness);
+            lamp.brightness_percent = brightness;
+        }
+        else{
+            /// wrong mode
+            return 0;
+        }
+    }
+    else{
+        /// lamp is not turned on
+        return 0;
+    }
 
     return 1;
 }
@@ -176,10 +190,41 @@ uint8_t StopDynamicMode(void){
     return 1;
 }
 
+uint8_t direction_r = 1;
+uint8_t direction_g = 0;
+uint8_t direction_b = 1;
 void LampDynamicCallbackFromApiLamp(void){
-    lamp.static_color.r++;
-    lamp.static_color.g++;
-    lamp.static_color.b++;
+    if(direction_r == 1){
+        if(lamp.static_color.r++ >= 254){
+            direction_r = 0;
+        }
+    }
+    else{
+        if(lamp.static_color.r-- <= 1){
+            direction_r = 1;
+        }
+    }
+    if(direction_g == 1){
+        if(lamp.static_color.g++ >= 254){
+            direction_r = 0;
+        }
+    }
+    else{
+        if(lamp.static_color.g-- <= 1){
+            direction_r = 1;
+        }
+    }
+    if(direction_b == 1){
+        if(lamp.static_color.b++ >= 254){
+            direction_r = 0;
+        }
+    }
+    else{
+        if(lamp.static_color.b-- <= 1){
+            direction_r = 1;
+        }
+    }
+    
     SetLampPWM(lamp_red, lamp.static_color.r);
     SetLampPWM(lamp_green, lamp.static_color.g);
     SetLampPWM(lamp_blue, lamp.static_color.b);

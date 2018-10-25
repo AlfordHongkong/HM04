@@ -1466,7 +1466,6 @@ int32_t gizwitsHandle(dataPoint_t *currentData)
                 break;
             case ACK_REPORT_P0:
             case ACK_WIFI_CONFIG:
-                GIZWITS_LOG("WIFI CONFIG.\n");
             case ACK_SET_DEFAULT:
             case ACK_NINABLE_MODE:
             case ACK_REBOOT_MODULE:

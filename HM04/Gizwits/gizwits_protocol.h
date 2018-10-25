@@ -88,18 +88,18 @@ extern "C" {
 #define temperature_unit_LEN                           1
 #define lamp_mode_BYTEOFFSET                    0
 #define lamp_mode_BITOFFSET                     4
-#define lamp_mode_LEN                           2
+#define lamp_mode_LEN                           3
 #define scenario_BYTEOFFSET                    0
-#define scenario_BITOFFSET                     6
+#define scenario_BITOFFSET                     7
 #define scenario_LEN                           3
 #define mist_mode_BYTEOFFSET                    1
-#define mist_mode_BITOFFSET                     9
+#define mist_mode_BITOFFSET                     10
 #define mist_mode_LEN                           1
 #define mist_timer_BYTEOFFSET                    1
-#define mist_timer_BITOFFSET                     10
+#define mist_timer_BITOFFSET                     11
 #define mist_timer_LEN                           2
 #define speaker_status_BYTEOFFSET                    1
-#define speaker_status_BITOFFSET                     12
+#define speaker_status_BITOFFSET                     13
 #define speaker_status_LEN                           1
 #define flag_water_shortage_BYTEOFFSET                    11
 #define flag_water_shortage_BITOFFSET                     0
@@ -160,6 +160,8 @@ typedef enum
     lamp_mode_VALUE0 = 0,//static_mode
     lamp_mode_VALUE1 = 1,//dynamic_mode
     lamp_mode_VALUE2 = 2,//scenario_mode
+    lamp_mode_VALUE3 = 3,//white_mode
+    lamp_mode_VALUE4 = 4,//yellow_mode
     lamp_mode_VALUE_MAX,
 } lamp_mode_ENUM_T;
 typedef enum
