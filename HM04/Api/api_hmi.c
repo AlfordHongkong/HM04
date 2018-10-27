@@ -86,5 +86,15 @@ void StartPairing_hmi(void){
 }
 
 void StopPairing_hmi(void){
+    osTimerStop(PairingHmiTimerHandle);
+}
+void ShowWifiConnectedRouter(void){
+    osTimerStop(PairingHmiTimerHandle);
+    TurnOnLed(led_wifi);
+}
+
+void ShowWifiDisconnectedRouter(void){
+	osTimerStop(PairingHmiTimerHandle);
+    TurnOffLed(led_wifi);
 
 }

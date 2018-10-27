@@ -26,6 +26,7 @@ uint8_t InitHM04(void){
     hm04.lamp = GetLamp();
     hm04.mist = GetMist();
     hm04.status = hm04_off;
+    hm04.wifi_status = wifi_disconnected;
 
     return 1;
 }
@@ -53,4 +54,15 @@ uint8_t IsHm04TurnedOn(void){
         return 1;
     
     return 0;
+}
+
+uint8_t SetWifiStatus(wifi_status_t status){
+    hm04.wifi_status = status;
+
+    return 1;
+}
+
+wifi_status_t GetWifiStatus(void){
+    return hm04.wifi_status;
+    
 }

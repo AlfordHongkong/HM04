@@ -58,15 +58,16 @@ void StartFSM(void){
         }
 
         /// whether hm04 is turned on or not.
-        // if (new == EVENT_START_PAIRING){
-        //     /// start pairing
-        //     gizwitsSetMode(WIFI_AIRLINK_MODE);
-        //     /// show the pair hmi
-        //     StartPairing_hmi();
-        // }
+        if (new == EVENT_PAIR_KEY_SHORT){
+            /// start pairing
+            gizwitsSetMode(WIFI_AIRLINK_MODE);
+            /// show the pair hmi
+            StartPairing_hmi();
+            SetWifiStatus(wifi_pairing);
+        }
 
-        // if  (new == EVENT_STOP_PAIRING){
-        //     /// stop pair hmi 
-        // }
+        if  (new == EVENT_STOP_PAIRING){
+            /// stop pair hmi 
+        }
     }
 }

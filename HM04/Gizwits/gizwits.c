@@ -391,3 +391,41 @@ void InitGizwits(void){
 
 //   return 0;
 // }
+
+
+
+// typedef enum
+// {
+//   WIFI_SOFTAP = 0x00,                               ///< WiFi SOFTAP configuration event
+//   WIFI_AIRLINK,                                     ///< WiFi module AIRLINK configuration event
+//   WIFI_STATION,                                     ///< WiFi module STATION configuration event
+//   WIFI_OPEN_BINDING,                                ///< The WiFi module opens the binding event
+//   WIFI_CLOSE_BINDING,                               ///< The WiFi module closes the binding event
+//   WIFI_CON_ROUTER,                                  ///< The WiFi module is connected to a routing event
+//   WIFI_DISCON_ROUTER,                               ///< The WiFi module has been disconnected from the routing event
+//   WIFI_CON_M2M,                                     ///< The WiFi module has a server M2M event
+//   WIFI_DISCON_M2M,                                  ///< The WiFi module has been disconnected from the server M2M event
+//   WIFI_OPEN_TESTMODE,                               ///< The WiFi module turns on the test mode event
+//   WIFI_CLOSE_TESTMODE,                              ///< The WiFi module turns off the test mode event
+//   WIFI_CON_APP,                                     ///< The WiFi module connects to the APP event
+//   WIFI_DISCON_APP,                                  ///< The WiFi module disconnects the APP event
+//   WIFI_RSSI,                                        ///< WiFi module RSSI event
+//   WIFI_NTP,                                         ///< Network time event
+//   MODULE_INFO,                                      ///< Module information event
+//   TRANSPARENT_DATA,                                 ///< Transparency events
+//   EVENT_lamp_status,
+//   EVENT_mist_status,
+//   EVENT_hm04_status,
+//   EVENT_temperature_unit,
+//   EVENT_lamp_mode,
+//   EVENT_scenario,
+//   EVENT_mist_mode,
+//   EVENT_mist_timer,
+//   EVENT_speaker_status,
+//   EVENT_lamp_static_color_r,
+//   EVENT_lamp_static_color_g,
+//   EVENT_lamp_static_color_b,
+//   EVENT_lamp_brightness_percent,
+//   EVENT_speaker_volum_percent,
+//   EVENT_TYPE_MAX                                    ///< Enumerate the number of members to calculate (user accidentally deleted)
+// } EVENT_TYPE_T;

@@ -91,7 +91,8 @@ void ReadKeys(fptrReadKey_t read_keys_func_array[],
 
 void StartPairing_hmi(void);
 void StopPairing_hmi(void);
-
+void ShowWifiConnectedRouter(void);
+void ShowWifiDisconnectedRouter(void);
 #endif
 
 

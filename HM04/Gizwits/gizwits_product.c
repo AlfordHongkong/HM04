@@ -21,8 +21,10 @@
 #include "common.h"
 
 #include "gizwits.h"
+#include "api_hm04.h"
 #include "api_lamp.h"
 #include "api_mist.h"
+#include "api_hmi.h"
 #include "bsp_gpio.h"
 
 static uint32_t timerMsCount;
@@ -288,21 +290,51 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
 
 
       case WIFI_SOFTAP:
+        GIZWITS_LOG("wifi soft ap event -by rock\n");
+        if(GetWifiStatus() == wifi_pairing){
+          
+          ShowWifiDisconnectedRouter();
+          SetWifiStatus(wifi_disconnected);
+        }
         break;
       case WIFI_AIRLINK:
+        GIZWITS_LOG("wifi airlink envent -by rock\n");
         break;
       case WIFI_STATION:
+        GIZWITS_LOG("wifi station event -by rock\n");
+        break;
+      case WIFI_OPEN_BINDING:
+        GIZWITS_LOG("wifi starting paring. -by rock\n");
+        SetWifiStatus(wifi_pairing);
+        break;
+      case WIFI_CLOSE_BINDING:
+        GIZWITS_LOG("wifi stop paring. -by rock\n");
+        if(GetWifiStatus() == wifi_pairing){
+          ShowWifiDisconnectedRouter();
+          SetWifiStatus(wifi_disconnected);
+        }
+        break;
+      case WIFI_CON_APP:
+        GIZWITS_LOG("wifi connected app. by rock\n");
+        break;
+      case WIFI_DISCON_APP:
+        GIZWITS_LOG("wifi disconnected app. by rock\n");
         break;
       case WIFI_CON_ROUTER:
- 
+        GIZWITS_LOG("wifi connected router. -by rock\n");
+        ShowWifiConnectedRouter();
+        SetWifiStatus(wifi_connected);
         break;
       case WIFI_DISCON_ROUTER:
- 
+        GIZWITS_LOG("wifi disconnected router. -by rock\n");
+        ShowWifiDisconnectedRouter();
+        SetWifiStatus(wifi_disconnected);
         break;
       case WIFI_CON_M2M:
- 
+        GIZWITS_LOG("wifi connected M2M. -by rock\n");
         break;
       case WIFI_DISCON_M2M:
+        GIZWITS_LOG("wifi disconnected M2M. -by rock\n");
         break;
       case WIFI_RSSI:
         GIZWITS_LOG("RSSI %d\n", wifiData->rssi);
