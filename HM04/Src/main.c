@@ -60,6 +60,7 @@
 #include "api_hm04.h"
 #include "api_lamp.h"
 #include "api_mist.h"
+#include "sw_iic.h"
 #include "gizwits.h"
 #include "gizwits_product.h"
 #include "gizwits_protocol.h"
@@ -80,6 +81,7 @@ osThreadId CliTaskHandle;
 osThreadId FsmTaskHandle;
 osThreadId KeysTaskHandle;
 osThreadId GizwitsTaskHandle;
+osThreadId SensorsTaskHandle;
 osMessageQId eventsQueueHandle;
 osTimerId PairingHmiTimerHandle;
 osTimerId LampDynamicTimerHandle;
@@ -107,6 +109,7 @@ void StartCliTask(void const * argument);
 void StartFsmTask(void const * argument);
 void StartKeysTask(void const * argument);
 void StartGizwitsTask(void const * argument);
+void StartSensorsTask(void const * argument);
 void PairingHmiCallback(void const * argument);
 void LampDynamicCallback(void const * argument);
 void MistTimerCallback(void const * argument);
@@ -233,6 +236,10 @@ int main(void)
   /* definition and creation of GizwitsTask */
   osThreadDef(GizwitsTask, StartGizwitsTask, osPriorityNormal, 0, 128);
   GizwitsTaskHandle = osThreadCreate(osThread(GizwitsTask), NULL);
+
+  /* definition and creation of SensorsTask */
+  osThreadDef(SensorsTask, StartSensorsTask, osPriorityIdle, 0, 128);
+  SensorsTaskHandle = osThreadCreate(osThread(SensorsTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -519,7 +526,7 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(fan_GPIO_Port, fan_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(mist_GPIO_Port, mist_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, mist_Pin|HT_SDA_Pin|HT_SCL_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin : key_pair_Pin */
   GPIO_InitStruct.Pin = key_pair_Pin;
@@ -527,8 +534,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(key_pair_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : led_wifi_Pin led_on_Pin mist_Pin */
-  GPIO_InitStruct.Pin = led_wifi_Pin|led_on_Pin|mist_Pin;
+  /*Configure GPIO pins : led_wifi_Pin led_on_Pin mist_Pin HT_SDA_Pin 
+                           HT_SCL_Pin */
+  GPIO_InitStruct.Pin = led_wifi_Pin|led_on_Pin|mist_Pin|HT_SDA_Pin 
+                          |HT_SCL_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -563,6 +572,7 @@ void StartDefaultTask(void const * argument)
 
   InitHM04();
   InitGizwits();
+  InitHDC1080_sw_iic();
   /* Infinite loop */
   for(;;)
   {
@@ -646,6 +656,21 @@ void StartGizwitsTask(void const * argument)
   /* USER CODE END StartGizwitsTask */
 }
 
+/* StartSensorsTask function */
+void StartSensorsTask(void const * argument)
+{
+  /* USER CODE BEGIN StartSensorsTask */
+  float temperature, humidity;
+  /* Infinite loop */
+  for(;;)
+  {
+    GetTemperatureHumidity(&temperature, &humidity);
+    SetHDC1080(&temperature, &humidity);
+    osDelay(100);
+  }
+  /* USER CODE END StartSensorsTask */
+}
+
 /* PairingHmiCallback function */
 void PairingHmiCallback(void const * argument)
 {
@@ -697,13 +722,13 @@ void TurnOffMistingCallback(void const * argument)
 //void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //{
 //  /* USER CODE BEGIN Callback 0 */
-////////
+////////////
 //  /* USER CODE END Callback 0 */
 //  if (htim->Instance == TIM1) {
 //    HAL_IncTick();
 //  }
 //  /* USER CODE BEGIN Callback 1 */
-////////
+////////////
 //  /* USER CODE END Callback 1 */
 //}
 

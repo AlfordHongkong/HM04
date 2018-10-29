@@ -23,8 +23,9 @@
  * 
  */
 typedef enum {
+    mist_off,
     mist_on,
-    mist_off
+    
 }mist_status_t;
 
 /**
@@ -98,6 +99,7 @@ uint8_t IsMistStarted(void);
 uint8_t SetMistMode(mist_mode_t mode);
 uint8_t SetMistTimer(mist_timer_t timer);
 mist_t * GetMist(void);
+mist_status_t GetMistStatus(void);
 
 uint8_t Do4KeyMistPressed(void);
 

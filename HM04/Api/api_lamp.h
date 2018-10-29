@@ -19,8 +19,9 @@
  * 
  */
 typedef enum {
-    lamp_on,
     lamp_off,
+    lamp_on,
+    
     lamp_status_max
 }lamp_status_t;
 

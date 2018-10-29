@@ -119,8 +119,7 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
         {
           //user handle   
           /// it's general off 
-          TurnOffLamp();
-          StopMisting(); 
+          TurnOffHM04();
         }
         break;
 
@@ -375,13 +374,15 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
 */
 void userHandle(void)
 {
- /*
-    currentDataPoint.valuehumidity = ;//Add Sensor Data Collection
-    currentDataPoint.valueremaining_water_percent = ;//Add Sensor Data Collection
-    currentDataPoint.valuetemperature = ;//Add Sensor Data Collection
-    currentDataPoint.valueflag_water_shortage = ;//Add Sensor Data Collection
-
-    */
+ 
+    currentDataPoint.valuehumidity = GetHumidity();//Add Sensor Data Collection
+    // currentDataPoint.valueremaining_water_percent = ;//Add Sensor Data Collection
+    currentDataPoint.valuetemperature = GetTemperature();//Add Sensor Data Collection
+    // currentDataPoint.valueflag_water_shortage = ;//Add Sensor Data Collection
+    currentDataPoint.valuehm04_status = GetHm04Status();
+    currentDataPoint.valuemist_status = GetMistStatus();
+    currentDataPoint.valuelamp_status = GetLampStatus();
+    
     
 }
 

@@ -11,6 +11,7 @@
 
 
 #include "api_mist.h"
+#include "api_hm04.h"
 #include "bsp_gpio.h"
 #include "stm32f1xx_hal.h"
 #include "cmsis_os.h"
@@ -173,11 +174,15 @@ uint8_t StartMisting(void){
     /// turn on fan and mist
     TurnOnFan();
     TurnOnMist();
-
-    /// change the setting
-    mist.status = mist_on;
     /// update indicator leds
     UpdateMistLeds();
+
+    /// last, modify the flag data
+    mist.status = mist_on;
+    if(GetHm04Status() == hm04_off){
+        SetHm04Status(hm04_on);
+    }
+    
     return 1;
 }
 
@@ -380,3 +385,7 @@ uint8_t IsMistStarted(void){
     }
 }
 
+
+mist_status_t GetMistStatus(void){
+    return mist.status;
+}

@@ -10,6 +10,7 @@
  */
 
 #include "api_lamp.h"
+#include "api_hm04.h"
 #include "stm32f1xx_hal.h"
 #include "cmsis_os.h"
 
@@ -90,9 +91,8 @@ uint8_t SetLampBrightness(uint8_t brightness){
  * @return uint8_t 
  */
 uint8_t TurnOnLamp(void){
-    //// first, changet the setting
-    lamp.status = lamp_on;
-    /// then, actions
+    
+    /// first, actions
     /// checking the lamp mode
     if(lamp.mode == white_mode){
         SetLampPWM(lamp_white, lamp.brightness_percent);
@@ -113,6 +113,11 @@ uint8_t TurnOnLamp(void){
     }
     else{
         return 0;
+    }
+    //// then, changet the setting
+    lamp.status = lamp_on;
+    if(GetHm04Status() == hm04_off){
+        SetHm04Status(hm04_on);
     }
 
     return 1;
