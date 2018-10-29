@@ -573,6 +573,7 @@ void StartDefaultTask(void const * argument)
   InitHM04();
   InitGizwits();
   InitHDC1080_sw_iic();
+  // gizwitsSetMode(WIFI_SOFTAP_MODE);
   /* Infinite loop */
   for(;;)
   {

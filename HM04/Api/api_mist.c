@@ -174,14 +174,16 @@ uint8_t StartMisting(void){
     /// turn on fan and mist
     TurnOnFan();
     TurnOnMist();
-    /// update indicator leds
-    UpdateMistLeds();
+    
 
     /// last, modify the flag data
     mist.status = mist_on;
     if(GetHm04Status() == hm04_off){
         SetHm04Status(hm04_on);
     }
+    
+    /// update indicator leds
+    UpdateMistLeds();
     
     return 1;
 }

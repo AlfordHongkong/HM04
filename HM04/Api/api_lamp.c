@@ -21,9 +21,6 @@ extern osTimerId LampDynamicTimerHandle;
 
 
 
-#define DYNAMIC_BEGINNING_R  1
-#define DYNAMIC_BEGINNING_G  100
-#define DYNAMIC_BEGINNING_B  50
 
 
 void InitLamp(void){
@@ -182,10 +179,30 @@ uint8_t SwitchLampMode(lamp_mode_t mode){
     return 1;
 }
 
+
+#define DYNAMIC_MIN_R  50
+#define DYNAMIC_MIN_G  0
+#define DYNAMIC_MIN_B  0
+#define DYNAMIC_MAX_R  150
+#define DYNAMIC_MAX_G  100
+#define DYNAMIC_MAX_B  100
+
+typedef enum{
+    r_go_up,
+    g_go_down,
+    b_go_up,
+
+    r_go_down,
+    g_go_up,
+    b_go_down,
+}dynamic_cation_t;
+dynamic_cation_t dynamic_cation;
+
 uint8_t StartDynamicMode(void){
-    lamp.static_color.r = DYNAMIC_BEGINNING_R;
-    lamp.static_color.g = DYNAMIC_BEGINNING_G;
-    lamp.static_color.b = DYNAMIC_BEGINNING_B;
+    lamp.static_color.r = DYNAMIC_MIN_R;
+    lamp.static_color.g = DYNAMIC_MAX_G;
+    lamp.static_color.b = DYNAMIC_MIN_B;
+    dynamic_cation = r_go_up,
     osTimerStart(LampDynamicTimerHandle, 100);
     return 1;
 }
@@ -195,39 +212,42 @@ uint8_t StopDynamicMode(void){
     return 1;
 }
 
-uint8_t direction_r = 1;
-uint8_t direction_g = 0;
-uint8_t direction_b = 1;
+
 void LampDynamicCallbackFromApiLamp(void){
-    if(direction_r == 1){
-        if(lamp.static_color.r++ >= 254){
-            direction_r = 0;
+    switch(dynamic_cation){
+        case r_go_up:
+        if(lamp.static_color.r++ >= DYNAMIC_MAX_R){
+            dynamic_cation = g_go_down;
         }
-    }
-    else{
-        if(lamp.static_color.r-- <= 1){
-            direction_r = 1;
+        break;
+        case g_go_down:
+        if(lamp.static_color.g-- <= DYNAMIC_MIN_G+1){
+            dynamic_cation = b_go_up;
         }
-    }
-    if(direction_g == 1){
-        if(lamp.static_color.g++ >= 254){
-            direction_r = 0;
+        break;
+        case b_go_up:
+        if(lamp.static_color.b++ >= DYNAMIC_MAX_B){
+            dynamic_cation = r_go_down;
         }
-    }
-    else{
-        if(lamp.static_color.g-- <= 1){
-            direction_r = 1;
+        break;
+        case r_go_down:
+        if(lamp.static_color.r-- <= DYNAMIC_MIN_R+1){
+            dynamic_cation = g_go_up;
         }
-    }
-    if(direction_b == 1){
-        if(lamp.static_color.b++ >= 254){
-            direction_r = 0;
+        break;
+        case g_go_up:
+        if(lamp.static_color.g++ >= DYNAMIC_MAX_G){
+            dynamic_cation = b_go_down;
         }
-    }
-    else{
-        if(lamp.static_color.b-- <= 1){
-            direction_r = 1;
+        break;
+        case b_go_down:
+        if(lamp.static_color.b-- <= DYNAMIC_MIN_B+1){
+            dynamic_cation = r_go_up;
         }
+        break;
+
+        default:
+        break;
     }
     
     SetLampPWM(lamp_red, lamp.static_color.r);
