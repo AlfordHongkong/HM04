@@ -64,9 +64,12 @@
 #include "gizwits.h"
 #include "gizwits_product.h"
 #include "gizwits_protocol.h"
+#include "ir_decode.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
+I2C_HandleTypeDef hi2c1;
+
 TIM_HandleTypeDef htim2;
 TIM_HandleTypeDef htim3;
 TIM_HandleTypeDef htim7;
@@ -103,6 +106,8 @@ static void MX_TIM3_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM2_Init(void);
+static void MX_TIM4_Init(void);
+static void MX_I2C1_Init(void);
 void StartDefaultTask(void const * argument);
 void StartLightsTask(void const * argument);
 void StartCliTask(void const * argument);
@@ -114,7 +119,8 @@ void PairingHmiCallback(void const * argument);
 void LampDynamicCallback(void const * argument);
 void MistTimerCallback(void const * argument);
 void IntermittentCallback(void const * argument);
-void TurnOffMistingCallback(void const * argument);                                    
+void TurnOffMistingCallback(void const * argument);
+                                    
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
                                 
@@ -164,6 +170,8 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM7_Init();
   MX_TIM2_Init();
+  MX_TIM4_Init();
+  MX_I2C1_Init();
   /* USER CODE BEGIN 2 */
   vRegisterCLICommands();
   //InitLampPWM();
@@ -325,6 +333,26 @@ void SystemClock_Config(void)
   HAL_NVIC_SetPriority(SysTick_IRQn, 15, 0);
 }
 
+/* I2C1 init function */
+static void MX_I2C1_Init(void)
+{
+
+  hi2c1.Instance = I2C1;
+  hi2c1.Init.ClockSpeed = 100000;
+  hi2c1.Init.DutyCycle = I2C_DUTYCYCLE_2;
+  hi2c1.Init.OwnAddress1 = 0;
+  hi2c1.Init.AddressingMode = I2C_ADDRESSINGMODE_7BIT;
+  hi2c1.Init.DualAddressMode = I2C_DUALADDRESS_DISABLE;
+  hi2c1.Init.OwnAddress2 = 0;
+  hi2c1.Init.GeneralCallMode = I2C_GENERALCALL_DISABLE;
+  hi2c1.Init.NoStretchMode = I2C_NOSTRETCH_DISABLE;
+  if (HAL_I2C_Init(&hi2c1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+}
+
 /* TIM2 init function */
 static void MX_TIM2_Init(void)
 {
@@ -413,6 +441,68 @@ static void MX_TIM3_Init(void)
   }
 
   HAL_TIM_MspPostInit(&htim3);
+
+}
+
+/* TIM4 init function */
+static void MX_TIM4_Init(void)
+{
+
+  LL_TIM_InitTypeDef TIM_InitStruct;
+
+  LL_GPIO_InitTypeDef GPIO_InitStruct;
+
+  /* Peripheral clock enable */
+  LL_APB1_GRP1_EnableClock(LL_APB1_GRP1_PERIPH_TIM4);
+  
+  /**TIM4 GPIO Configuration  
+  PB6   ------> TIM4_CH1 
+  */
+  GPIO_InitStruct.Pin = LL_GPIO_PIN_6;
+  GPIO_InitStruct.Mode = LL_GPIO_MODE_FLOATING;
+  LL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /* TIM4 interrupt Init */
+  NVIC_SetPriority(TIM4_IRQn, NVIC_EncodePriority(NVIC_GetPriorityGrouping(),5, 0));
+  NVIC_EnableIRQ(TIM4_IRQn);
+
+  TIM_InitStruct.Prescaler = 23;
+  TIM_InitStruct.CounterMode = LL_TIM_COUNTERMODE_UP;
+  TIM_InitStruct.Autoreload = 65535;
+  TIM_InitStruct.ClockDivision = LL_TIM_CLOCKDIVISION_DIV1;
+  LL_TIM_Init(TIM4, &TIM_InitStruct);
+
+  LL_TIM_DisableARRPreload(TIM4);
+
+  LL_TIM_SetClockSource(TIM4, LL_TIM_CLOCKSOURCE_INTERNAL);
+
+  LL_TIM_SetTriggerInput(TIM4, LL_TIM_TS_TI1FP1);
+
+  LL_TIM_SetSlaveMode(TIM4, LL_TIM_SLAVEMODE_RESET);
+
+  LL_TIM_IC_SetFilter(TIM4, LL_TIM_CHANNEL_CH1, LL_TIM_IC_FILTER_FDIV1);
+
+  LL_TIM_IC_SetPolarity(TIM4, LL_TIM_CHANNEL_CH1, LL_TIM_IC_POLARITY_FALLING);
+
+  LL_TIM_DisableIT_TRIG(TIM4);
+
+  LL_TIM_DisableDMAReq_TRIG(TIM4);
+
+  LL_TIM_SetTriggerOutput(TIM4, LL_TIM_TRGO_RESET);
+
+  LL_TIM_DisableMasterSlaveMode(TIM4);
+
+  LL_TIM_IC_SetActiveInput(TIM4, LL_TIM_CHANNEL_CH1, LL_TIM_ACTIVEINPUT_DIRECTTI);
+
+  LL_TIM_IC_SetPrescaler(TIM4, LL_TIM_CHANNEL_CH1, LL_TIM_ICPSC_DIV1);
+
+  LL_TIM_IC_SetActiveInput(TIM4, LL_TIM_CHANNEL_CH2, LL_TIM_ACTIVEINPUT_INDIRECTTI);
+
+  LL_TIM_IC_SetPrescaler(TIM4, LL_TIM_CHANNEL_CH2, LL_TIM_ICPSC_DIV1);
+
+  LL_TIM_IC_SetFilter(TIM4, LL_TIM_CHANNEL_CH2, LL_TIM_IC_FILTER_FDIV1);
+
+  LL_TIM_IC_SetPolarity(TIM4, LL_TIM_CHANNEL_CH2, LL_TIM_IC_POLARITY_RISING);
 
 }
 
@@ -573,6 +663,7 @@ void StartDefaultTask(void const * argument)
   InitHM04();
   InitGizwits();
   InitHDC1080_sw_iic();
+  IR_Init();
   // gizwitsSetMode(WIFI_SOFTAP_MODE);
   /* Infinite loop */
   for(;;)
@@ -720,18 +811,25 @@ void TurnOffMistingCallback(void const * argument)
   * @param  htim : TIM handle
   * @retval None
   */
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-//{
-//  /* USER CODE BEGIN Callback 0 */
-////////////
-//  /* USER CODE END Callback 0 */
-//  if (htim->Instance == TIM1) {
-//    HAL_IncTick();
-//  }
-//  /* USER CODE BEGIN Callback 1 */
-////////////
-//  /* USER CODE END Callback 1 */
-//}
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM1) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+  else if(htim->Instance == TIM_GIZWITS) ///< for gizwits timer
+  {
+    gizTimerMs();
+  }
+  else if(htim->Instance == TIM4){  ///< timer4 is for pwm input mode
+    IR_ResetPacket();
+  }
+
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

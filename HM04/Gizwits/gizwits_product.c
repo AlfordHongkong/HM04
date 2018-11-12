@@ -480,6 +480,9 @@ PUTCHAR_PROTOTYPE
   return ch;
 }
 
+
+#define MOVE_GIZWITS_TIMER_CALLBACK_TO_MAIN_FILE
+#if !defined(MOVE_GIZWITS_TIMER_CALLBACK_TO_MAIN_FILE)
 /**
   * @brief  Period elapsed callback in non blocking mode 
   * @param  htim : TIM handle
@@ -493,6 +496,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 			gizTimerMs();
 	}
 }
+
+#endif 
 
 /**
 * @brief Timer TIM3 init function

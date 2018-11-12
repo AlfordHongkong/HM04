@@ -18,6 +18,7 @@
  * 
  */
 #define htim_gizwits htim7 //< htim2 or htim2 is the default choice by gizwits
+#define TIM_GIZWITS TIM7
 
 /**
  * @brief Define the timer used by gizwits and huart2 in gizwits_product.c should be instead of huart_wifi.

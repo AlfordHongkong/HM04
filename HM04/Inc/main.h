@@ -52,6 +52,17 @@
 #define __MAIN_H__
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f1xx_ll_tim.h"
+#include "stm32f1xx_ll_bus.h"
+#include "stm32f1xx_ll_cortex.h"
+#include "stm32f1xx_ll_rcc.h"
+#include "stm32f1xx_ll_system.h"
+#include "stm32f1xx_ll_utils.h"
+#include "stm32f1xx_ll_pwr.h"
+#include "stm32f1xx_ll_gpio.h"
+#include "stm32f1xx_ll_dma.h"
+
+#include "stm32f1xx_ll_exti.h"
 
 /* USER CODE BEGIN Includes */
 
@@ -95,6 +106,12 @@
 #define HT_SDA_GPIO_Port GPIOA
 #define HT_SCL_Pin GPIO_PIN_12
 #define HT_SCL_GPIO_Port GPIOA
+#define IR_Pin GPIO_PIN_6
+#define IR_GPIO_Port GPIOB
+#define HT_SCL_2_Pin GPIO_PIN_8
+#define HT_SCL_2_GPIO_Port GPIOB
+#define HT_SDA_2_Pin GPIO_PIN_9
+#define HT_SDA_2_GPIO_Port GPIOB
 
 /* ########################## Assert Selection ############################## */
 /**
