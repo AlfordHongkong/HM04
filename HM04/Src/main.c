@@ -170,14 +170,14 @@ int main(void)
   vRegisterCLICommands();
   //InitLampPWM();
 
-  // TurnOnLed(led_wifi);
-  // TurnOnLed(led_on);
-  // TurnOnLed(led_1h);
-  // TurnOnLed(led_2h);
-  // TurnOffLed(led_wifi);
-  // TurnOffLed(led_on);
-  // TurnOffLed(led_1h);
-  // TurnOffLed(led_2h);
+   TurnOnLed(led_wifi);
+   TurnOnLed(led_on);
+   TurnOnLed(led_1h);
+   TurnOnLed(led_2h);
+   TurnOffLed(led_wifi);
+   TurnOffLed(led_on);
+   TurnOffLed(led_1h);
+   TurnOffLed(led_2h);
   
   /* USER CODE END 2 */
 
