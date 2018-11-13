@@ -46,9 +46,14 @@
   */
 
 /* Includes ------------------------------------------------------------------*/
+#include "stm32f1xx_hal.h"
+
 #include "ir_decode.h"
 // #include "stm32100e_eval_lcd.h"
 #include "ir_commands.c"
+
+
+extern TIM_HandleTypeDef htim4;
 
 /** @addtogroup STM32F10x_Infrared_Decoders
   * @{
@@ -136,8 +141,8 @@ static uint32_t TIM_GetCounterCLKValue(void);
   */
 void IR_DeInit(void)
 { 
-  TIM_DeInit(IR_TIM);
-  GPIO_DeInit(IR_GPIO_PORT);
+  // TIM_DeInit(IR_TIM);
+  // GPIO_DeInit(IR_GPIO_PORT);
 }
 
 /**
@@ -147,77 +152,144 @@ void IR_DeInit(void)
   */
 void IR_Init(void)
 { 
-  GPIO_InitTypeDef GPIO_InitStructure;
-  NVIC_InitTypeDef NVIC_InitStructure;
-  TIM_ICInitTypeDef TIM_ICInitStructure;
-  
-  /*  Clock Configuration for TIMER */
-  RCC_APB1PeriphClockCmd(IR_TIM_CLK , ENABLE);
 
-  /* Enable Button GPIO clock */
-  RCC_APB2PeriphClockCmd(IR_GPIO_PORT_CLK | RCC_APB2Periph_AFIO, ENABLE);
+  /*========  set gpio and nvic  ==========================================*/
+
+  GPIO_InitTypeDef GPIO_InitStructure;
+  // NVIC_InitTypeDef NVIC_InitStructure;
+  // TIM_ICInitTypeDef TIM_ICInitStructure;
+  
+  // /*  Clock Configuration for TIMER */
+  // RCC_APB1PeriphClockCmd(IR_TIM_CLK , ENABLE);
+
+  // /* Enable Button GPIO clock */
+  // RCC_APB2PeriphClockCmd(IR_GPIO_PORT_CLK | RCC_APB2Periph_AFIO, ENABLE);
   
   /* Pin configuration: input floating */
-  GPIO_InitStructure.GPIO_Pin = IR_GPIO_PIN;
-  GPIO_InitStructure.GPIO_Mode = GPIO_Mode_IN_FLOATING;
-  GPIO_InitStructure.GPIO_Speed = GPIO_Speed_50MHz;
-  GPIO_Init(IR_GPIO_PORT, &GPIO_InitStructure);
+  GPIO_InitStructure.Pin = GPIO_PIN_6;
+  GPIO_InitStructure.Mode = GPIO_MODE_AF_INPUT;
+  GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
   
-  GPIO_PinRemapConfig(GPIO_FullRemap_TIM3, ENABLE);
+  
+  // GPIO_PinRemapConfig(GPIO_FullRemap_TIM3, ENABLE);
      
-  NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
+  // NVIC_PriorityGroupConfig(NVIC_PriorityGroup_2);
 
   /* Enable the TIM global Interrupt */
-  NVIC_InitStructure.NVIC_IRQChannel = IR_TIM_IRQn ;
-  NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
-  NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
-  NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
-  NVIC_Init(&NVIC_InitStructure);
+  // NVIC_InitStructure.NVIC_IRQChannel = IR_TIM_IRQn ;
+  // NVIC_InitStructure.NVIC_IRQChannelPreemptionPriority = 1;
+  // NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
+  // NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
+  // NVIC_Init(&NVIC_InitStructure);
+  HAL_NVIC_SetPriority(TIM4_IRQn, 5, 0);
+  HAL_NVIC_EnableIRQ(TIM4_IRQn);
+  /*====================================================================*/
+
   
+
+ /*========== set frequency and UP bit  =================================*/
+
   /* TIMER frequency input */
-  TIM_PrescalerConfig(IR_TIM, TIM_PRESCALER, TIM_PSCReloadMode_Immediate);
+  // TIM_PrescalerConfig(IR_TIM, TIM_PRESCALER, TIM_PSCReloadMode_Immediate);
 
-  /* TIM configuration */
-  TIM_ICInitStructure.TIM_Channel = IR_TIM_Channel;
-  TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPolarity_Falling;
-  TIM_ICInitStructure.TIM_ICSelection = TIM_ICSelection_DirectTI;
-  TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
-  TIM_ICInitStructure.TIM_ICFilter = 0x0;
-  TIM_PWMIConfig(IR_TIM, &TIM_ICInitStructure); 
+  htim4.Instance = TIM4;
 
-  /* Timer Clock */
+  __HAL_TIM_SET_PRESCALER(&htim4, 23);
+  htim4.Instance->EGR |= 0x0001;
+  /*====================================================================*/
+ 
+  /*====================================================================*/
+  /* Origin: TIM configuration; Update: TIM channel configuration */
+  // TIM_ICInitStructure.TIM_Channel = TIM_CHANNEL_1;
+  // TIM_ICInitStructure.TIM_ICPolarity = TIM_ICPOLARITY_FALLING; 
+  // TIM_ICInitStructure.TIM_ICSelection = TIM_ICSELECTION_DIRECTTI;
+  // TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
+  // TIM_ICInitStructure.TIM_ICFilter = 0x0;
+  // TIM_PWMIConfig(&htim4, &TIM_ICInitStructure); 
+  TIM_IC_InitTypeDef TIM_ICInitStructure;
+  TIM_ICInitStructure.ICPolarity = TIM_ICPOLARITY_FALLING;
+  TIM_ICInitStructure.ICSelection = TIM_ICSELECTION_DIRECTTI;
+  TIM_ICInitStructure.ICPrescaler = TIM_ICPSC_DIV1;
+  TIM_ICInitStructure.ICFilter = 0x0;
+  HAL_TIM_IC_ConfigChannel(&htim4, &TIM_ICInitStructure, TIM_CHANNEL_1);
+  TIM_ICInitStructure.ICPolarity = TIM_ICPOLARITY_RISING;
+  TIM_ICInitStructure.ICSelection = TIM_ICSELECTION_INDIRECTTI;
+  HAL_TIM_IC_ConfigChannel(&htim4, &TIM_ICInitStructure, TIM_CHANNEL_1);
+  /*====================================================================*/
+
+
+
+  /*====== get timer clock  ===============================================*/
+  // /* Timer Clock */
   TIMCLKValueKHz = TIM_GetCounterCLKValue()/1000; 
+  /*====================================================================*/
 
-  /* Select the TIM3 Input Trigger: TI1FP1 */
-  TIM_SelectInputTrigger(IR_TIM, TIM_TS_TI1FP1);
 
-  /* Select the slave Mode: Reset Mode */
-  TIM_SelectSlaveMode(IR_TIM, TIM_SlaveMode_Reset);
 
-  /* Enable the Master/Slave Mode */
-  TIM_SelectMasterSlaveMode(IR_TIM, TIM_MasterSlaveMode_Enable);
+  /*======================  set slave mode  =================================*/
+  // /* Select the TIM3 Input Trigger: TI1FP1 */
+  // TIM_SelectInputTrigger(IR_TIM, TIM_TS_TI1FP1);
+  
 
-  /* Configures the TIM Update Request Interrupt source: counter overflow */
-  TIM_UpdateRequestConfig(IR_TIM,  TIM_UpdateSource_Regular);
-   
+  // /* Select the slave Mode: Reset Mode */
+  // TIM_SelectSlaveMode(IR_TIM, TIM_SlaveMode_Reset);
+
+  // /* Enable the Master/Slave Mode */
+  // TIM_SelectMasterSlaveMode(IR_TIM, TIM_MasterSlaveMode_Enable);
+  TIM_SlaveConfigTypeDef SlaveConfig;
+  SlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
+  SlaveConfig.InputTrigger = TIM_TS_TI1FP1;
+  HAL_TIM_SlaveConfigSynchronization(&htim4, &SlaveConfig);
+  TIM_MasterConfigTypeDef MasterConfig;
+  MasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
+  HAL_TIMEx_MasterConfigSynchronization(&htim4, &MasterConfig);
+  /*====================================================================*/
+
+
+
+  /*========================= set URS bit  ==============================*/
+  // /* Configures the TIM Update Request Interrupt source: counter overflow */
+  // TIM_UpdateRequestConfig(IR_TIM,  TIM_UpdateSource_Regular);
+  __HAL_TIM_URS_ENABLE(&htim4);
+   /*====================================================================*/
+
+
+
+  /*=== set timeout =====================================================*/
   IRTimeOut = TIMCLKValueKHz * IR_TIME_OUT_US/1000;
 
   /* Set the TIM auto-reload register for each IR protocol */
-  IR_TIM->ARR = IRTimeOut;
+  htim4.Instance->ARR = IRTimeOut;
+  /*======================================================================*/
   
-  /* Clear update flag */
-  TIM_ClearFlag(IR_TIM, TIM_FLAG_Update);
 
-  /* Enable TIM3 Update Event Interrupt Request */
-  TIM_ITConfig(IR_TIM, TIM_IT_Update, ENABLE);
 
-  /* Enable the CC2/CC1 Interrupt Request */
-  TIM_ITConfig(IR_TIM, TIM_IT_CC2, ENABLE);
-  TIM_ITConfig(IR_TIM, TIM_IT_CC1, ENABLE);
 
-  /* Enable the timer */
-  TIM_Cmd(IR_TIM, ENABLE);
-  
+  /*=== cleanr update flag ============================================*/
+  // /* Clear update flag */
+  // TIM_ClearFlag(IR_TIM, TIM_FLAG_Update);
+  __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
+  /*======================================================================*/
+
+
+
+
+  /*====  enablessss ===================================================*/
+  // /* Enable TIM3 Update Event Interrupt Request */
+  // TIM_ITConfig(IR_TIM, TIM_IT_Update, ENABLE);
+
+  // /* Enable the CC2/CC1 Interrupt Request */
+  // TIM_ITConfig(IR_TIM, TIM_IT_CC2, ENABLE);
+  // TIM_ITConfig(IR_TIM, TIM_IT_CC1, ENABLE);
+
+  // /* Enable the timer */
+  // TIM_Cmd(IR_TIM, ENABLE);
+
+  HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
+  HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_2);
+  HAL_TIM_Base_Start_IT(&htim4);
+  /*========================================================================*/
   /* Header */	
   IRHeaderLowMin = TIMCLKValueKHz * IR_HEADER_LOW_MIN_US/1000;
   IRHeaderLowMax = TIMCLKValueKHz * IR_HEADER_LOW_MAX_US/1000;
@@ -263,12 +335,7 @@ void IR_Decode(IR_Frame_TypeDef *ir_frame)
     /* Default state */
     IRFrameReceived = NO; 
     IR_ResetPacket();
-    
-#ifdef USE_LCD 
-    /* Display command and address */
-    LCD_DisplayStringLine(LCD_LINE_5, IR_Commands[ir_frame->Command]);
-    LCD_DisplayStringLine(LCD_LINE_6, IR_devices[ir_frame->Address]);
-#endif
+  
   }
 }
 
@@ -309,30 +376,30 @@ void IR_ResetPacket(void)
   * @param  None
   * @retval None
   */
-void TIM3_IRQHandler (void)
+void TIM4_IRQHandler (void)
 {
   static uint32_t ICValue1;
   static uint32_t ICValue2;
   
   /* IC1 Interrupt */
-  if((TIM_GetFlagStatus(IR_TIM, TIM_FLAG_CC1) != RESET))
+  if((__HAL_TIM_GET_FLAG(&htim4, TIM_FLAG_CC1) != RESET))
   {
-    TIM_ClearFlag(IR_TIM, TIM_FLAG_CC1);
+    __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_CC1);
     /* Get the Input Capture value */
-    ICValue2 = TIM_GetCapture1(IR_TIM);
+    ICValue2 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_1);
     IR_DataSampling(ICValue1, ICValue2); 
   }  /* IC2 Interrupt*/   
-  else  if((TIM_GetFlagStatus(IR_TIM, TIM_FLAG_CC2) != RESET))
+  else  if((__HAL_TIM_GET_FLAG(&htim4, TIM_FLAG_CC2) != RESET))
   {
-    TIM_ClearFlag(IR_TIM, TIM_FLAG_CC2);
+    __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_CC2);
     /* Get the Input Capture value */
-    ICValue1 = TIM_GetCapture2(IR_TIM);
+    ICValue1 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_2);
   } 
   /* Checks whether the IR_TIM flag is set or not. */
-  else if ((TIM_GetFlagStatus(IR_TIM, TIM_FLAG_Update) != RESET))
+  else if ((__HAL_TIM_GET_FLAG(&htim4, TIM_FLAG_UPDATE) != RESET))
   { 
     /* Clears the IR_TIM's pending flags*/
-    TIM_ClearFlag(IR_TIM, TIM_FLAG_Update);
+    __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
     
     IR_ResetPacket();
   }
@@ -446,28 +513,28 @@ static uint32_t TIM_GetCounterCLKValue(void)
 {
   uint32_t apbprescaler = 0, apbfrequency = 0;
   uint32_t timprescaler = 0;
-  __IO RCC_ClocksTypeDef RCC_ClockFreq;
+  // __IO RCC_ClocksTypeDef RCC_ClockFreq;
   
   /* This function fills the RCC_ClockFreq structure with the current
   frequencies of different on chip clocks */
-  RCC_GetClocksFreq((RCC_ClocksTypeDef*)&RCC_ClockFreq);
+  // RCC_GetClocksFreq((RCC_ClocksTypeDef*)&RCC_ClockFreq);
   
-  if((IR_TIM == TIM1) || (IR_TIM == TIM8) || (IR_TIM == TIM15) ||
-     (IR_TIM == TIM16) || (IR_TIM == TIM17))
-  {    
-    /* Get the clock prescaler of APB2 */
-    apbprescaler = ((RCC->CFGR >> 11) & 0x7);
-    apbfrequency = RCC_ClockFreq.PCLK2_Frequency;
-    timprescaler = TIM_PRESCALER;
-  }
-  else if((IR_TIM == TIM2) || (IR_TIM == TIM3) || (IR_TIM == TIM4) ||
-          (IR_TIM == TIM5) || (IR_TIM == TIM6) || (IR_TIM == TIM7) )
-  {
-    /* Get the clock prescaler of APB1 */
-    apbprescaler = ((RCC->CFGR >> 8) & 0x7);
-    apbfrequency = RCC_ClockFreq.PCLK1_Frequency; 
-    timprescaler = TIM_PRESCALER;
-  }
+  // if((IR_TIM == TIM1) || (IR_TIM == TIM8) || (IR_TIM == TIM15) ||
+  //    (IR_TIM == TIM16) || (IR_TIM == TIM17))
+  // {    
+  //   /* Get the clock prescaler of APB2 */
+  //   apbprescaler = ((RCC->CFGR >> 11) & 0x7);
+  //   apbfrequency = RCC_ClockFreq.PCLK2_Frequency;
+  //   timprescaler = TIM_PRESCALER;
+  // }
+  // else if((IR_TIM == TIM2) || (IR_TIM == TIM3) || (IR_TIM == TIM4) ||
+  //         (IR_TIM == TIM5) || (IR_TIM == TIM6) || (IR_TIM == TIM7) )
+  // {
+  //   /* Get the clock prescaler of APB1 */
+  //   apbprescaler = ((RCC->CFGR >> 8) & 0x7);
+  //   apbfrequency = RCC_ClockFreq.PCLK1_Frequency; 
+  //   timprescaler = TIM_PRESCALER;
+  // }
   
   /* If APBx clock div >= 4 */
   if (apbprescaler >= 4)

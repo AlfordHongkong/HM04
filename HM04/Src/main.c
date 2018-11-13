@@ -64,6 +64,7 @@
 #include "gizwits.h"
 #include "gizwits_product.h"
 #include "gizwits_protocol.h"
+#include "ir_decode.h"
 /* USER CODE END Includes */
 
 /* Private variables ---------------------------------------------------------*/
@@ -104,7 +105,7 @@ static void MX_TIM3_Init(void);
 static void MX_USART2_UART_Init(void);
 static void MX_TIM7_Init(void);
 static void MX_TIM2_Init(void);
-void MX_TIM4_Init(void);
+static void MX_TIM4_Init(void);
 void StartDefaultTask(void const * argument);
 void StartLightsTask(void const * argument);
 void StartCliTask(void const * argument);
@@ -166,6 +167,7 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM7_Init();
   MX_TIM2_Init();
+  // MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   vRegisterCLICommands();
   //InitLampPWM();
@@ -180,7 +182,7 @@ int main(void)
    TurnOffLed(led_2h);
   
   /* USER CODE END 2 */
-
+  IR_Init();
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
@@ -419,7 +421,7 @@ static void MX_TIM3_Init(void)
 }
 
 /* TIM4 init function */
-void MX_TIM4_Init(void)
+static void MX_TIM4_Init(void)
 {
 
   TIM_ClockConfigTypeDef sClockSourceConfig;
@@ -790,13 +792,13 @@ void TurnOffMistingCallback(void const * argument)
 //void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 //{
 //  /* USER CODE BEGIN Callback 0 */
-//////////////
+////////////////
 //  /* USER CODE END Callback 0 */
 //  if (htim->Instance == TIM1) {
 //    HAL_IncTick();
 //  }
 //  /* USER CODE BEGIN Callback 1 */
-//////////////
+////////////////
 //  /* USER CODE END Callback 1 */
 //}
 

@@ -70,15 +70,15 @@
   * @{
   */
    
-#define IR_TIM                 TIM4                     /*!< Timer used for IR decoding */
-#define TIM_PRESCALER          23                       /* !< TIM prescaler */
-#define IR_TIM_CLK             RCC_APB1Periph_TIM4      /*!< Clock of the used timer */
-#define IR_TIM_IRQn            TIM4_IRQn             /*!< IR TIM IRQ */
-#define IR_TIM_Channel         TIM_Channel_1            /*!< IR TIM Channel */
-
-#define IR_GPIO_PORT           GPIOB                    /*!< Port which IR output is connected */
-#define IR_GPIO_PORT_CLK       RCC_APB2Periph_GPIOB     /*!< IR pin GPIO Clock Port */
-#define IR_GPIO_PIN            GPIO_Pin_6               /*!< Pin which IR is connected */
+//#define IR_TIM                 TIM4                     /*!< Timer used for IR decoding */
+//#define TIM_PRESCALER          23                       /* !< TIM prescaler */
+//#define IR_TIM_CLK             RCC_APB1Periph_TIM4      /*!< Clock of the used timer */
+//#define IR_TIM_IRQn            TIM4_IRQn             /*!< IR TIM IRQ */
+//#define IR_TIM_Channel         TIM_Channel_1            /*!< IR TIM Channel */
+//
+//#define IR_GPIO_PORT           GPIOB                    /*!< Port which IR output is connected */
+//#define IR_GPIO_PORT_CLK       RCC_APB2Periph_GPIOB     /*!< IR pin GPIO Clock Port */
+//#define IR_GPIO_PIN            GPIO_Pin_6               /*!< Pin which IR is connected */
 /**
   * @}
   */
