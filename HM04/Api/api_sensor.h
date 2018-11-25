@@ -3,11 +3,17 @@
  * 
  * @file api_sensor.h
  * @author your name
+ * 
+ * @note - temp ramge: 15c - 26c
+ *                     60f - 80f
+ *         humi range: 20%RH - 70%RH
  * @date 2018-09-11
  */
 
 #ifndef API_SENSOR_H
 #define API_SENSOR_H
+
+
 
 #include <stdint.h>
 

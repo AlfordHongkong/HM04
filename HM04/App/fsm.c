@@ -60,8 +60,8 @@ void StartFSM(void){
         /// whether hm04 is turned on or not.
         if (new == EVENT_PAIR_KEY_LONG){
             /// start pairing
-            gizwitsSetMode(WIFI_AIRLINK_MODE);
-            // gizwitsSetMode(WIFI_SOFTAP_MODE);
+            // gizwitsSetMode(WIFI_AIRLINK_MODE);
+            gizwitsSetMode(WIFI_SOFTAP_MODE);
             /// show the pair hmi
             StartPairing_hmi();
             SetWifiStatus(wifi_pairing);
