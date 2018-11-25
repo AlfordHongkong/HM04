@@ -90,6 +90,7 @@ osTimerId LampDynamicTimerHandle;
 osTimerId MistTimerHandle;
 osTimerId MistIntermittentTimerHandle;
 osTimerId TurnOffMistingDelayTimerHandle;
+osTimerId PairingTimerHandle;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
@@ -117,7 +118,8 @@ void PairingHmiCallback(void const * argument);
 void LampDynamicCallback(void const * argument);
 void MistTimerCallback(void const * argument);
 void IntermittentCallback(void const * argument);
-void TurnOffMistingCallback(void const * argument);                                    
+void TurnOffMistingCallback(void const * argument);
+void PairingTimerCallback(void const * argument);                                    
 void HAL_TIM_MspPostInit(TIM_HandleTypeDef *htim);
                                 
                                 
@@ -167,22 +169,22 @@ int main(void)
   MX_USART2_UART_Init();
   MX_TIM7_Init();
   MX_TIM2_Init();
-  // MX_TIM4_Init();
+  MX_TIM4_Init();
   /* USER CODE BEGIN 2 */
   vRegisterCLICommands();
   //InitLampPWM();
 
-   TurnOnLed(led_wifi);
-   TurnOnLed(led_on);
-   TurnOnLed(led_1h);
-   TurnOnLed(led_2h);
-   TurnOffLed(led_wifi);
-   TurnOffLed(led_on);
-   TurnOffLed(led_1h);
-   TurnOffLed(led_2h);
-  
+//   TurnOnLed(led_wifi);
+//   TurnOnLed(led_on);
+//   TurnOnLed(led_1h);
+//   TurnOnLed(led_2h);
+//   TurnOffLed(led_wifi);
+//   TurnOffLed(led_on);
+//   TurnOffLed(led_1h);
+//   TurnOffLed(led_2h);
+//
   /* USER CODE END 2 */
-  IR_Init();
+
   /* USER CODE BEGIN RTOS_MUTEX */
   /* add mutexes, ... */
   /* USER CODE END RTOS_MUTEX */
@@ -211,6 +213,10 @@ int main(void)
   /* definition and creation of TurnOffMistingDelayTimer */
   osTimerDef(TurnOffMistingDelayTimer, TurnOffMistingCallback);
   TurnOffMistingDelayTimerHandle = osTimerCreate(osTimer(TurnOffMistingDelayTimer), osTimerOnce, NULL);
+
+  /* definition and creation of PairingTimer */
+  osTimerDef(PairingTimer, PairingTimerCallback);
+  PairingTimerHandle = osTimerCreate(osTimer(PairingTimer), osTimerOnce, NULL);
 
   /* USER CODE BEGIN RTOS_TIMERS */
   /* start timers, add new ones, ... */
@@ -586,10 +592,10 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, led_wifi_Pin|led_on_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, led_wifi_Pin|led_bt_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOC, led_1h_Pin|led_2h_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOC, led_on_Pin|led_int_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(fan_GPIO_Port, fan_Pin, GPIO_PIN_RESET);
@@ -603,17 +609,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(key_pair_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : led_wifi_Pin led_on_Pin mist_Pin HT_SDA_Pin 
+  /*Configure GPIO pins : led_wifi_Pin led_bt_Pin mist_Pin HT_SDA_Pin 
                            HT_SCL_Pin */
-  GPIO_InitStruct.Pin = led_wifi_Pin|led_on_Pin|mist_Pin|HT_SDA_Pin 
+  GPIO_InitStruct.Pin = led_wifi_Pin|led_bt_Pin|mist_Pin|HT_SDA_Pin 
                           |HT_SCL_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : led_1h_Pin led_2h_Pin fan_Pin */
-  GPIO_InitStruct.Pin = led_1h_Pin|led_2h_Pin|fan_Pin;
+  /*Configure GPIO pins : led_on_Pin led_int_Pin fan_Pin */
+  GPIO_InitStruct.Pin = led_on_Pin|led_int_Pin|fan_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -781,6 +787,14 @@ void TurnOffMistingCallback(void const * argument)
   /* USER CODE END TurnOffMistingCallback */
 }
 
+/* PairingTimerCallback function */
+void PairingTimerCallback(void const * argument)
+{
+  /* USER CODE BEGIN PairingTimerCallback */
+  StopPairing_hmi();
+  /* USER CODE END PairingTimerCallback */
+}
+
 /**
   * @brief  Period elapsed callback in non blocking mode
   * @note   This function is called  when TIM1 interrupt took place, inside
@@ -789,18 +803,22 @@ void TurnOffMistingCallback(void const * argument)
   * @param  htim : TIM handle
   * @retval None
   */
-//void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-//{
-//  /* USER CODE BEGIN Callback 0 */
-////////////////
-//  /* USER CODE END Callback 0 */
-//  if (htim->Instance == TIM1) {
-//    HAL_IncTick();
-//  }
-//  /* USER CODE BEGIN Callback 1 */
-////////////////
-//  /* USER CODE END Callback 1 */
-//}
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
+  /* USER CODE BEGIN Callback 0 */
+// ////////////////
+  /* USER CODE END Callback 0 */
+  if (htim->Instance == TIM1) {
+    HAL_IncTick();
+  }
+  /* USER CODE BEGIN Callback 1 */
+  if(htim==&htim_gizwits)
+	{
+			// keyHandle((keysTypedef_t *)&keys);
+			gizTimerMs();
+	}
+  /* USER CODE END Callback 1 */
+}
 
 /**
   * @brief  This function is executed in case of error occurrence.

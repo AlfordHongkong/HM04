@@ -296,34 +296,19 @@ uint8_t SwitchMistTimer(mist_timer_t timer){
 uint8_t Do4KeyMistPressed(void){
     if(mist.status == mist_off){
         StartMisting();
+        SwitchMistMode(continuous);
     }
     else if(mist.status == mist_on){
         if(mist.mode == continuous){
-        	if(mist.timer == no_timer)
-        		SwitchMistMode(intermittent);
+        	SwitchMistMode(intermittent);
         }
         else if(mist.mode == intermittent){
-            SwitchMistMode(continuous);
-            SwitchMistTimer(timer_60min);
-            return 1;
+            StopMisting();
         }
         else{
             /// wrong mode
             return 0;
         }
-
-        if(mist.timer == timer_60min){
-            SwitchMistTimer(timer_120min);
-        }
-        else if(mist.timer == timer_120min){
-            SwitchMistTimer(no_timer);
-            StopMisting();
-        }
-        else {
-            /// wrong timer
-            return 0;
-        }
-
     }
     else {
         /// wrong mist.status
@@ -335,28 +320,18 @@ uint8_t Do4KeyMistPressed(void){
 
 uint8_t UpdateMistLeds(void){
     if(mist.status == mist_off){
+        // TurnOffLed(led_on);
         TurnOffLed(led_on);
-        TurnOffLed(led_1h);
-        TurnOffLed(led_2h);
+        TurnOffLed(led_int);
     }
     else if(mist.status == mist_on){
-        if(mist.timer == no_timer){
-            TurnOffLed(led_on);
-            TurnOffLed(led_1h);
-            TurnOffLed(led_2h);
+        if (mist.mode == continuous){
             TurnOnLed(led_on);
+            TurnOffLed(led_int);
         }
-        else if(mist.timer == timer_60min){
+        else if (mist.mode == intermittent){
             TurnOffLed(led_on);
-            TurnOffLed(led_1h);
-            TurnOffLed(led_2h);
-            TurnOnLed(led_1h);
-        }
-        else if(mist.timer == timer_120min){
-            TurnOffLed(led_on);
-            TurnOffLed(led_1h);
-            TurnOffLed(led_2h);
-            TurnOnLed(led_2h);
+            TurnOnLed(led_int);
         }
         else {
             /// wrong timer
@@ -367,7 +342,6 @@ uint8_t UpdateMistLeds(void){
         /// wrong status
         return 0;
     }
-    
 
     return 1;
 }

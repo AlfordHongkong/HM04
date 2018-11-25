@@ -101,6 +101,11 @@ uint8_t SetMistTimer(mist_timer_t timer);
 mist_t * GetMist(void);
 mist_status_t GetMistStatus(void);
 
+/**
+ * @brief action for the key mist pressed
+ * 
+ * @return uint8_t - 0 means return success
+ */
 uint8_t Do4KeyMistPressed(void);
 
 #endif

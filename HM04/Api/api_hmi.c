@@ -81,12 +81,15 @@ key_state_t ReadKeyPair(void){
 }
 
 extern osTimerId PairingHmiTimerHandle;
+extern osTimerId PairingTimerHandle;
 void StartPairing_hmi(void){
-    osTimerStart(PairingHmiTimerHandle, 100);
+    osTimerStart(PairingHmiTimerHandle, 300);
+    osTimerStart(PairingTimerHandle, 120*1000);
 }
 
 void StopPairing_hmi(void){
     osTimerStop(PairingHmiTimerHandle);
+    TurnOffLed(led_wifi);
 }
 void ShowWifiConnectedRouter(void){
     osTimerStop(PairingHmiTimerHandle);

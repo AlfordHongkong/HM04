@@ -117,9 +117,9 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
         }
         else
         {
-          //user handle   
+          //user handle  
           /// it's general off 
-          TurnOffHM04();
+          TurnOffHM04();  
         }
         break;
 
@@ -213,23 +213,20 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
       case EVENT_mist_timer:
         currentDataPoint.valuemist_timer = dataPointPtr->valuemist_timer;
         GIZWITS_LOG("Evt: EVENT_mist_timer %d\n", currentDataPoint.valuemist_timer);
-        mist_timer_t timer;
-        timer = currentDataPoint.valuemist_timer;
-        SwitchMistTimer(timer);
-        // switch(currentDataPoint.valuemist_timer)
-        // {
-        //   case mist_timer_VALUE0:
-        //     //user handle
-        //     break;
-        //   case mist_timer_VALUE1:
-        //     //user handle
-        //     break;
-        //   case mist_timer_VALUE2:
-        //     //user handle
-        //     break;
-        //   default:
-        //     break;
-        // }
+        switch(currentDataPoint.valuemist_timer)
+        {
+          case mist_timer_VALUE0:
+            //user handle
+            break;
+          case mist_timer_VALUE1:
+            //user handle
+            break;
+          case mist_timer_VALUE2:
+            //user handle
+            break;
+          default:
+            break;
+        }
         break;
       case EVENT_speaker_status:
         currentDataPoint.valuespeaker_status = dataPointPtr->valuespeaker_status;
@@ -280,6 +277,7 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
         GIZWITS_LOG("Evt:EVENT_lamp_brightness_percent %d\n",currentDataPoint.valuelamp_brightness_percent);
         //user handle
         SetLampBrightness(currentDataPoint.valuelamp_brightness_percent);
+      
         break;
       case EVENT_speaker_volum_percent:
         currentDataPoint.valuespeaker_volum_percent = dataPointPtr->valuespeaker_volum_percent;
@@ -290,11 +288,11 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
 
       case WIFI_SOFTAP:
         GIZWITS_LOG("wifi soft ap event -by rock\n");
-        if(GetWifiStatus() == wifi_pairing){
+        // if(GetWifiStatus() == wifi_pairing){
           
-          ShowWifiDisconnectedRouter();
-          SetWifiStatus(wifi_disconnected);
-        }
+        //   ShowWifiDisconnectedRouter();
+        //   SetWifiStatus(wifi_disconnected);
+        // }
         break;
       case WIFI_AIRLINK:
         GIZWITS_LOG("wifi airlink envent -by rock\n");
@@ -375,6 +373,10 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
 void userHandle(void)
 {
  
+    currentDataPoint.valueflag_temp_too_low = 0;//Add Sensor Data Collection
+    currentDataPoint.valueflag_temp_too_high = 0;//Add Sensor Data Collection
+    currentDataPoint.valueflag_humi_too_low = 0;//Add Sensor Data Collection
+    currentDataPoint.valueflag_humi_too_high = 0;//Add Sensor Data Collection
     currentDataPoint.valuehumidity = GetHumidity();//Add Sensor Data Collection
     // currentDataPoint.valueremaining_water_percent = ;//Add Sensor Data Collection
     currentDataPoint.valuetemperature = GetTemperature();//Add Sensor Data Collection
@@ -382,7 +384,6 @@ void userHandle(void)
     currentDataPoint.valuehm04_status = GetHm04Status();
     currentDataPoint.valuemist_status = GetMistStatus();
     currentDataPoint.valuelamp_status = GetLampStatus();
-    
     
 }
 
@@ -414,6 +415,10 @@ void userInit(void)
       currentDataPoint.valuelamp_static_color_b = ;
       currentDataPoint.valuelamp_brightness_percent = ;
       currentDataPoint.valuespeaker_volum_percent = ;
+      currentDataPoint.valueflag_temp_too_low = ;
+      currentDataPoint.valueflag_temp_too_high = ;
+      currentDataPoint.valueflag_humi_too_low = ;
+      currentDataPoint.valueflag_humi_too_high = ;
       currentDataPoint.valuehumidity = ;
       currentDataPoint.valueremaining_water_percent = ;
       currentDataPoint.valuetemperature = ;
@@ -485,14 +490,14 @@ PUTCHAR_PROTOTYPE
   * @param  htim : TIM handle
   * @retval None
   */
-void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
-{
-	if(htim==&htim_gizwits)
-	{
-			//keyHandle((keysTypedef_t *)&keys);
-			gizTimerMs();
-	}
-}
+// void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+// {
+// 	if(htim==&htim_gizwits)
+// 	{
+// 			// keyHandle((keysTypedef_t *)&keys);
+// 			gizTimerMs();
+// 	}
+// }
 
 /**
 * @brief Timer TIM3 init function

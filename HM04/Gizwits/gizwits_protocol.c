@@ -324,6 +324,26 @@ static int8_t ICACHE_FLASH_ATTR gizCheckReport(dataPoint_t *cur, dataPoint_t *la
         GIZWITS_LOG("valuespeaker_volum_percent Changed\n");
         ret = 1;
     }
+    if(last->valueflag_temp_too_low != cur->valueflag_temp_too_low)
+    {
+        GIZWITS_LOG("valueflag_temp_too_low Changed\n");
+        ret = 1;
+    }
+    if(last->valueflag_temp_too_high != cur->valueflag_temp_too_high)
+    {
+        GIZWITS_LOG("valueflag_temp_too_high Changed\n");
+        ret = 1;
+    }
+    if(last->valueflag_humi_too_low != cur->valueflag_humi_too_low)
+    {
+        GIZWITS_LOG("valueflag_humi_too_low Changed\n");
+        ret = 1;
+    }
+    if(last->valueflag_humi_too_high != cur->valueflag_humi_too_high)
+    {
+        GIZWITS_LOG("valueflag_humi_too_high Changed\n");
+        ret = 1;
+    }
     if(last->valueflag_water_shortage != cur->valueflag_water_shortage)
     {
         GIZWITS_LOG("valueflag_water_shortage Changed\n");
@@ -379,6 +399,7 @@ static int8_t ICACHE_FLASH_ATTR gizDataPoints2ReportData(dataPoint_t *dataPoints
     }
 
     gizMemset((uint8_t *)devStatusPtr->wBitBuf,0,sizeof(devStatusPtr->wBitBuf));
+    gizMemset((uint8_t *)devStatusPtr->rBitBuf,0,sizeof(devStatusPtr->rBitBuf));
     gizMemset((uint8_t *)devStatusPtr->alertBitBuf,0,sizeof(devStatusPtr->alertBitBuf));
 
     gizStandardCompressValue(lamp_status_BYTEOFFSET,lamp_status_BITOFFSET,lamp_status_LEN,(uint8_t *)devStatusPtr,dataPoints->valuelamp_status);
@@ -438,8 +459,13 @@ static int8_t ICACHE_FLASH_ATTR gizDataPoints2ReportData(dataPoint_t *dataPoints
     {
         gizStandardCompressValue(speaker_status_BYTEOFFSET,speaker_status_BITOFFSET,speaker_status_LEN,(uint8_t *)devStatusPtr,dataPoints->valuespeaker_status);  
     }
+    gizStandardCompressValue(flag_temp_too_low_BYTEOFFSET,flag_temp_too_low_BITOFFSET,flag_temp_too_low_LEN,(uint8_t *)devStatusPtr,dataPoints->valueflag_temp_too_low);
+    gizStandardCompressValue(flag_temp_too_high_BYTEOFFSET,flag_temp_too_high_BITOFFSET,flag_temp_too_high_LEN,(uint8_t *)devStatusPtr,dataPoints->valueflag_temp_too_high);
+    gizStandardCompressValue(flag_humi_too_low_BYTEOFFSET,flag_humi_too_low_BITOFFSET,flag_humi_too_low_LEN,(uint8_t *)devStatusPtr,dataPoints->valueflag_humi_too_low);
+    gizStandardCompressValue(flag_humi_too_high_BYTEOFFSET,flag_humi_too_high_BITOFFSET,flag_humi_too_high_LEN,(uint8_t *)devStatusPtr,dataPoints->valueflag_humi_too_high);
     gizStandardCompressValue(flag_water_shortage_BYTEOFFSET,flag_water_shortage_BITOFFSET,flag_water_shortage_LEN,(uint8_t *)devStatusPtr,dataPoints->valueflag_water_shortage);
     gizByteOrderExchange((uint8_t *)devStatusPtr->wBitBuf,sizeof(devStatusPtr->wBitBuf));
+    gizByteOrderExchange((uint8_t *)devStatusPtr->rBitBuf,sizeof(devStatusPtr->rBitBuf));
     gizByteOrderExchange((uint8_t *)devStatusPtr->alertBitBuf,sizeof(devStatusPtr->alertBitBuf));
 
     devStatusPtr->valuelamp_static_color_r = gizY2X(lamp_static_color_r_RATIO,  lamp_static_color_r_ADDITION, dataPoints->valuelamp_static_color_r); 

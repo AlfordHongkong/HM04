@@ -101,7 +101,19 @@ extern "C" {
 #define speaker_status_BYTEOFFSET                    1
 #define speaker_status_BITOFFSET                     13
 #define speaker_status_LEN                           1
-#define flag_water_shortage_BYTEOFFSET                    11
+#define flag_temp_too_low_BYTEOFFSET                    7
+#define flag_temp_too_low_BITOFFSET                     0
+#define flag_temp_too_low_LEN                           1
+#define flag_temp_too_high_BYTEOFFSET                    7
+#define flag_temp_too_high_BITOFFSET                     1
+#define flag_temp_too_high_LEN                           1
+#define flag_humi_too_low_BYTEOFFSET                    7
+#define flag_humi_too_low_BITOFFSET                     2
+#define flag_humi_too_low_LEN                           1
+#define flag_humi_too_high_BYTEOFFSET                    7
+#define flag_humi_too_high_BITOFFSET                     3
+#define flag_humi_too_high_LEN                           1
+#define flag_water_shortage_BYTEOFFSET                    12
 #define flag_water_shortage_BITOFFSET                     0
 #define flag_water_shortage_LEN                           1
 
@@ -142,6 +154,8 @@ extern "C" {
 /** Writable data points Boolean and enumerated variables occupy byte size */
 #define COUNT_W_BIT 2
 
+/** Read-only data points Boolean and enumerated variables occupy byte size */
+#define COUNT_R_BIT 1
 
 
 /** Read-only data points Boolean and enumerated variables occupy byte size */
@@ -167,11 +181,11 @@ typedef enum
 typedef enum
 {
     scenario_VALUE0 = 0,//morninig
-    scenario_VALUE1 = 1,//     dream
-    scenario_VALUE2 = 2,//     romantic
-    scenario_VALUE3 = 3,//     ocean
-    scenario_VALUE4 = 4,//     nature
-    scenario_VALUE5 = 5,//     tropical
+    scenario_VALUE1 = 1,//dream
+    scenario_VALUE2 = 2,//romantic
+    scenario_VALUE3 = 3,//ocean
+    scenario_VALUE4 = 4,//nature
+    scenario_VALUE5 = 5,//tropical
     scenario_VALUE_MAX,
 } scenario_ENUM_T;
 typedef enum
@@ -402,6 +416,10 @@ typedef struct {
   uint32_t valuelamp_static_color_b;
   uint32_t valuelamp_brightness_percent;
   uint32_t valuespeaker_volum_percent;
+  bool valueflag_temp_too_low;
+  bool valueflag_temp_too_high;
+  bool valueflag_humi_too_low;
+  bool valueflag_humi_too_high;
   float valuehumidity;
   uint32_t valueremaining_water_percent;
   float valuetemperature;
@@ -454,6 +472,7 @@ typedef struct {
   uint8_t valuelamp_static_color_b;
   uint8_t valuelamp_brightness_percent;
   uint8_t valuespeaker_volum_percent;
+  uint8_t rBitBuf[COUNT_R_BIT];
   uint8_t valuehumidity;
   uint8_t valueremaining_water_percent;
   uint16_t valuetemperature;

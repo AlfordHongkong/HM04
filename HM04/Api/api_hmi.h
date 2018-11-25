@@ -93,6 +93,7 @@ void StartPairing_hmi(void);
 void StopPairing_hmi(void);
 void ShowWifiConnectedRouter(void);
 void ShowWifiDisconnectedRouter(void);
+
 #endif
 
 
