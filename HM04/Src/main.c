@@ -50,6 +50,7 @@
 #include "main.h"
 #include "stm32f1xx_hal.h"
 #include "cmsis_os.h"
+#include "stm32f103xe.h"
 
 /* USER CODE BEGIN Includes */
 #include "bsp_gpio.h"
@@ -60,6 +61,7 @@
 #include "api_hm04.h"
 #include "api_lamp.h"
 #include "api_mist.h"
+#include "api_sensor.h"
 #include "sw_iic.h"
 #include "gizwits.h"
 #include "gizwits_product.h"
@@ -173,16 +175,24 @@ int main(void)
   /* USER CODE BEGIN 2 */
   vRegisterCLICommands();
   //InitLampPWM();
+  //StartSystemMessage();
+  // TestLampPwm();
+  // IR_Init();
+  InitHM04();
+  InitGizwits();
+  InitHDC1080_sw_iic();
+  
+  // HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
+  // HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_2);
+  // HAL_TIM_Base_Start(&htim4);
+  HAL_TIM_Base_Start_IT(&htim4);
+  // gizwitsSetMode(WIFI_SOFTAP_MODE);  
 
-//   TurnOnLed(led_wifi);
-//   TurnOnLed(led_on);
-//   TurnOnLed(led_1h);
-//   TurnOnLed(led_2h);
-//   TurnOffLed(led_wifi);
-//   TurnOffLed(led_on);
-//   TurnOffLed(led_1h);
-//   TurnOffLed(led_2h);
-//
+//  __HAL_RCC_DBGMCU_CLK_ENABLE();
+  // HAL_DBGMCU_EnableDBGStandbyMode();
+  // HAL_DBGMCU_EnableDBGStopMode();
+  // DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM4_STOP;
+  printf("system started.\n");
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -431,14 +441,12 @@ static void MX_TIM4_Init(void)
 {
 
   TIM_ClockConfigTypeDef sClockSourceConfig;
-  TIM_SlaveConfigTypeDef sSlaveConfig;
   TIM_MasterConfigTypeDef sMasterConfig;
-  TIM_IC_InitTypeDef sConfigIC;
 
   htim4.Instance = TIM4;
-  htim4.Init.Prescaler = 39;
+  htim4.Init.Prescaler = 71;
   htim4.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim4.Init.Period = 65535;
+  htim4.Init.Period = 15000;
   htim4.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim4.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim4) != HAL_OK)
@@ -452,39 +460,9 @@ static void MX_TIM4_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
-  if (HAL_TIM_IC_Init(&htim4) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
-  sSlaveConfig.InputTrigger = TIM_TS_TI1FP1;
-  sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
-  sSlaveConfig.TriggerFilter = 0;
-  if (HAL_TIM_SlaveConfigSynchronization(&htim4, &sSlaveConfig) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
-  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
-  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
-  sConfigIC.ICFilter = 0;
-  if (HAL_TIM_IC_ConfigChannel(&htim4, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
-  {
-    _Error_Handler(__FILE__, __LINE__);
-  }
-
-  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
-  sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
-  if (HAL_TIM_IC_ConfigChannel(&htim4, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }
@@ -642,13 +620,7 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN 5 */
-  //StartSystemMessage();
-  // TestLampPwm();
-
-  InitHM04();
-  InitGizwits();
-  InitHDC1080_sw_iic();
-  // gizwitsSetMode(WIFI_SOFTAP_MODE);
+  printf("Rtos started.\n");
   /* Infinite loop */
   for(;;)
   {
@@ -812,11 +784,15 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-  if(htim==&htim_gizwits)
+  else if(htim->Instance == TIM_GIZWITS)
 	{
 			// keyHandle((keysTypedef_t *)&keys);
 			gizTimerMs();
 	}
+  else if (htim->Instance == TIM4) {
+    IR_ResetPacket();
+  }
+  
   /* USER CODE END Callback 1 */
 }
 

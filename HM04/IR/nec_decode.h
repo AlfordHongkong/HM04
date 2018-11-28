@@ -55,8 +55,10 @@ typedef enum { NO = 0, YES = !NO} StatusYesOrNo;
   */
 typedef struct
 {  
+  __IO uint8_t User;
+  __IO uint8_t UserInverse;
   __IO uint8_t Command;   /*!< Command field */
-  __IO uint8_t Address ;  /*!< Address field */
+  __IO uint8_t CommandInverse ;  /*!< Address field */
 } IR_Frame_TypeDef;
 /** 
   * @brief  SIRC packet structure  
@@ -74,10 +76,10 @@ typedef struct
 /** @defgroup SIRC_Exported_Constants
   * @{
   */
-#define USE_LCD
-#define IR_MESSAGE                    " SIRC InfraRed Demo  "
+// #define USE_LCD
+#define IR_MESSAGE                    " NEC InfraRed Demo  "
 
-#define IR_TIME_OUT_US                4000 
+#define IR_TIME_OUT_US                15000 
 
 #define IR_STATUS_HEADER              1 << 1
 #define IR_STATUS_RX                  1 << 0
@@ -87,20 +89,20 @@ typedef struct
 #define IR_HEADER_ERROR               0xFF
 #define IR_HEADER_OK                  0x00
 
-#define IR_BITS_COUNT                 11
-#define IR_TOTAL_BITS_COUNT           11
+#define IR_BITS_COUNT                 32
+#define IR_TOTAL_BITS_COUNT           32
 
-#define IR_ONTIME_MIN_US              (600 - 50)
-#define IR_ONTIME_MAX_US              (1200 + 50)
+#define IR_ONTIME_MIN_US              (560 - 50)
+#define IR_ONTIME_MAX_US              (2240 + 100)
 
-#define IR_HEADER_LOW_MIN_US          (2400 - 100)
-#define IR_HEADER_LOW_MAX_US          (2400 + 100)
-#define IR_HEADER_WHOLE_MIN_US        (2400 + 600 - 50)
-#define IR_HEADER_WHOLE_MAX_US        (2400 + 600 + 50)
+#define IR_HEADER_LOW_MIN_US          (9000 - 100)
+#define IR_HEADER_LOW_MAX_US          (9000 + 100)
+#define IR_HEADER_WHOLE_MIN_US        (9000 + 4500 - 100)
+#define IR_HEADER_WHOLE_MAX_US        (9000 + 4500 + 100)
 
-#define IR_VALUE_STEP_US              600
+#define IR_VALUE_STEP_US              560
 #define IR_VALUE_MARGIN_US            100
-#define IR_VALUE_00_US                1200
+#define IR_VALUE_00_US                1120
 
 /**
   * @}

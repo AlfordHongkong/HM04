@@ -30,7 +30,6 @@ fptrReadKey_t * GetReadKeysFuncs(void);
  */
 void KeysCallback(key_state_t keys_state[], uint8_t keys_hold_acc[]);
 
-unsigned char GetTemperatureHumidity(float *temp_f, float *humi_f);
 
 
 #endif

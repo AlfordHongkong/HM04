@@ -26,6 +26,16 @@ temperature_unit_t GetTemperatureUnit(void);
 uint8_t SetTemperatureUnit(temperature_unit_t unit);
 uint8_t GetHumidityAndTemperature(uint32_t * humidity, uint32_t * temperature);
 
+/**
+ * @brief Get the Temperature Humidity object
+ * 
+ * This function should be called periodically
+ * 
+ * @param temp_f - temperature data
+ * @param humi_f - humidity data
+ * @return unsigned char - 0 means success
+ */
+unsigned char GetTemperatureHumidity(float *temp_f, float *humi_f);
 
 
 #endif

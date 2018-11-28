@@ -71,6 +71,7 @@ typedef struct {
  */
 uint8_t InitHM04(void);
 
+hm04_t *GetHm04(void);
 uint8_t SetHm04Status(hm04_status_t status);
 hm04_status_t GetHm04Status(void);
 
@@ -89,4 +90,11 @@ hdc_status_t GetHDC1080Status(void);
 uint8_t SetHDC1080Status(hdc_status_t status);
 
 
+uint8_t IsTempTooLow();
+
+uint8_t IsTempTooHigh();
+
+uint8_t IsTempTooLow();
+
+uint8_t IsTempTooHigh();
 #endif

@@ -372,18 +372,56 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
 */
 void userHandle(void)
 {
- 
-    currentDataPoint.valueflag_temp_too_low = 0;//Add Sensor Data Collection
-    currentDataPoint.valueflag_temp_too_high = 0;//Add Sensor Data Collection
-    currentDataPoint.valueflag_humi_too_low = 0;//Add Sensor Data Collection
-    currentDataPoint.valueflag_humi_too_high = 0;//Add Sensor Data Collection
+    hm04_t *hm04 = GetHm04();
+    lamp_t *lamp = GetLamp();
+    mist_t *mist = GetMist();
+    currentDataPoint.valueflag_temp_too_low = IsTempTooLow();//Add Sensor Data Collection
+    currentDataPoint.valueflag_temp_too_high = IsTempTooHigh();//Add Sensor Data Collection
+    currentDataPoint.valueflag_humi_too_low = IsHumiTooLow();//Add Sensor Data Collection
+    currentDataPoint.valueflag_humi_too_high = IsHumiTooHigh();//Add Sensor Data Collection
     currentDataPoint.valuehumidity = GetHumidity();//Add Sensor Data Collection
-    // currentDataPoint.valueremaining_water_percent = ;//Add Sensor Data Collection
     currentDataPoint.valuetemperature = GetTemperature();//Add Sensor Data Collection
-    // currentDataPoint.valueflag_water_shortage = ;//Add Sensor Data Collection
     currentDataPoint.valuehm04_status = GetHm04Status();
-    currentDataPoint.valuemist_status = GetMistStatus();
-    currentDataPoint.valuelamp_status = GetLampStatus();
+
+    currentDataPoint.valuemist_status = mist->status;
+    currentDataPoint.valuemist_mode = mist->mode;
+    // currentDataPoint.valueremaining_water_percent = ;//Add Sensor Data Collection
+    currentDataPoint.valueflag_water_shortage = mist->flagWaterDeficient;//Add Sensor Data Collection
+    // currentDataPoint.valuemist_timer = ;
+    currentDataPoint.valuelamp_status = lamp->status;
+    currentDataPoint.valuelamp_mode = lamp->mode;
+    currentDataPoint.valuescenario = lamp->scenario;
+    currentDataPoint.valuelamp_static_color_r = lamp->static_color.r;
+    currentDataPoint.valuelamp_static_color_g = lamp->static_color.g;
+    currentDataPoint.valuelamp_static_color_b = lamp->static_color.b;
+    currentDataPoint.valuelamp_brightness_percent = lamp->brightness_percent;
+    // currentDataPoint.valuespeaker_volum_percent = ;
+
+    
+
+
+    // bool valuelamp_status;
+    // bool valuemist_status;
+    // bool valuehm04_status;
+    // uint32_t valuetemperature_unit;
+    // uint32_t valuelamp_mode;
+    // uint32_t valuescenario;
+    // uint32_t valuemist_mode;
+    // uint32_t valuemist_timer;
+    // uint32_t valuespeaker_status;
+    // uint32_t valuelamp_static_color_r;
+    // uint32_t valuelamp_static_color_g;
+    // uint32_t valuelamp_static_color_b;
+    // uint32_t valuelamp_brightness_percent;
+    // uint32_t valuespeaker_volum_percent;
+    // bool valueflag_temp_too_low;
+    // bool valueflag_temp_too_high;
+    // bool valueflag_humi_too_low;
+    // bool valueflag_humi_too_high;
+    // float valuehumidity;
+    // uint32_t valueremaining_water_percent;
+    // float valuetemperature;
+    // bool valueflag_water_shortage;
     
 }
 

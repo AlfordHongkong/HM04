@@ -155,7 +155,7 @@ void IR_Init(void)
 
   /*========  set gpio and nvic  ==========================================*/
 
-  GPIO_InitTypeDef GPIO_InitStructure;
+  // GPIO_InitTypeDef GPIO_InitStructure;
   // NVIC_InitTypeDef NVIC_InitStructure;
   // TIM_ICInitTypeDef TIM_ICInitStructure;
   
@@ -166,10 +166,10 @@ void IR_Init(void)
   // RCC_APB2PeriphClockCmd(IR_GPIO_PORT_CLK | RCC_APB2Periph_AFIO, ENABLE);
   
   /* Pin configuration: input floating */
-  GPIO_InitStructure.Pin = GPIO_PIN_6;
-  GPIO_InitStructure.Mode = GPIO_MODE_AF_INPUT;
-  GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
+  // GPIO_InitStructure.Pin = GPIO_PIN_6;
+  // GPIO_InitStructure.Mode = GPIO_MODE_AF_INPUT;
+  // GPIO_InitStructure.Speed = GPIO_SPEED_FREQ_MEDIUM;
+  // HAL_GPIO_Init(GPIOB, &GPIO_InitStructure);
   
   
   // GPIO_PinRemapConfig(GPIO_FullRemap_TIM3, ENABLE);
@@ -182,8 +182,8 @@ void IR_Init(void)
   // NVIC_InitStructure.NVIC_IRQChannelSubPriority = 0;
   // NVIC_InitStructure.NVIC_IRQChannelCmd = ENABLE;
   // NVIC_Init(&NVIC_InitStructure);
-  HAL_NVIC_SetPriority(TIM4_IRQn, 5, 0);
-  HAL_NVIC_EnableIRQ(TIM4_IRQn);
+  // HAL_NVIC_SetPriority(TIM4_IRQn, 5, 0);
+  // HAL_NVIC_EnableIRQ(TIM4_IRQn);
   /*====================================================================*/
 
   
@@ -193,10 +193,10 @@ void IR_Init(void)
   /* TIMER frequency input */
   // TIM_PrescalerConfig(IR_TIM, TIM_PRESCALER, TIM_PSCReloadMode_Immediate);
 
-  htim4.Instance = TIM4;
+  // htim4.Instance = TIM4;
 
-  __HAL_TIM_SET_PRESCALER(&htim4, 23);
-  htim4.Instance->EGR |= 0x0001;
+  // __HAL_TIM_SET_PRESCALER(&htim4, 23);
+  // htim4.Instance->EGR |= 0x0001;
   /*====================================================================*/
  
   /*====================================================================*/
@@ -207,15 +207,15 @@ void IR_Init(void)
   // TIM_ICInitStructure.TIM_ICPrescaler = TIM_ICPSC_DIV1;
   // TIM_ICInitStructure.TIM_ICFilter = 0x0;
   // TIM_PWMIConfig(&htim4, &TIM_ICInitStructure); 
-  TIM_IC_InitTypeDef TIM_ICInitStructure;
-  TIM_ICInitStructure.ICPolarity = TIM_ICPOLARITY_FALLING;
-  TIM_ICInitStructure.ICSelection = TIM_ICSELECTION_DIRECTTI;
-  TIM_ICInitStructure.ICPrescaler = TIM_ICPSC_DIV1;
-  TIM_ICInitStructure.ICFilter = 0x0;
-  HAL_TIM_IC_ConfigChannel(&htim4, &TIM_ICInitStructure, TIM_CHANNEL_1);
-  TIM_ICInitStructure.ICPolarity = TIM_ICPOLARITY_RISING;
-  TIM_ICInitStructure.ICSelection = TIM_ICSELECTION_INDIRECTTI;
-  HAL_TIM_IC_ConfigChannel(&htim4, &TIM_ICInitStructure, TIM_CHANNEL_1);
+  // TIM_IC_InitTypeDef TIM_ICInitStructure;
+  // TIM_ICInitStructure.ICPolarity = TIM_ICPOLARITY_FALLING;
+  // TIM_ICInitStructure.ICSelection = TIM_ICSELECTION_DIRECTTI;
+  // TIM_ICInitStructure.ICPrescaler = TIM_ICPSC_DIV1;
+  // TIM_ICInitStructure.ICFilter = 0x0;
+  // HAL_TIM_IC_ConfigChannel(&htim4, &TIM_ICInitStructure, TIM_CHANNEL_1);
+  // TIM_ICInitStructure.ICPolarity = TIM_ICPOLARITY_RISING;
+  // TIM_ICInitStructure.ICSelection = TIM_ICSELECTION_INDIRECTTI;
+  // HAL_TIM_IC_ConfigChannel(&htim4, &TIM_ICInitStructure, TIM_CHANNEL_1);
   /*====================================================================*/
 
 
@@ -237,13 +237,13 @@ void IR_Init(void)
 
   // /* Enable the Master/Slave Mode */
   // TIM_SelectMasterSlaveMode(IR_TIM, TIM_MasterSlaveMode_Enable);
-  TIM_SlaveConfigTypeDef SlaveConfig;
-  SlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
-  SlaveConfig.InputTrigger = TIM_TS_TI1FP1;
-  HAL_TIM_SlaveConfigSynchronization(&htim4, &SlaveConfig);
-  TIM_MasterConfigTypeDef MasterConfig;
-  MasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
-  HAL_TIMEx_MasterConfigSynchronization(&htim4, &MasterConfig);
+  // TIM_SlaveConfigTypeDef SlaveConfig;
+  // SlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
+  // SlaveConfig.InputTrigger = TIM_TS_TI1FP1;
+  // HAL_TIM_SlaveConfigSynchronization(&htim4, &SlaveConfig);
+  // TIM_MasterConfigTypeDef MasterConfig;
+  // MasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_ENABLE;
+  // HAL_TIMEx_MasterConfigSynchronization(&htim4, &MasterConfig);
   /*====================================================================*/
 
 
@@ -251,7 +251,7 @@ void IR_Init(void)
   /*========================= set URS bit  ==============================*/
   // /* Configures the TIM Update Request Interrupt source: counter overflow */
   // TIM_UpdateRequestConfig(IR_TIM,  TIM_UpdateSource_Regular);
-  __HAL_TIM_URS_ENABLE(&htim4);
+  // __HAL_TIM_URS_ENABLE(&htim4);
    /*====================================================================*/
 
 
@@ -269,7 +269,7 @@ void IR_Init(void)
   /*=== cleanr update flag ============================================*/
   // /* Clear update flag */
   // TIM_ClearFlag(IR_TIM, TIM_FLAG_Update);
-  __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
+  // __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
   /*======================================================================*/
 
 
@@ -286,9 +286,9 @@ void IR_Init(void)
   // /* Enable the timer */
   // TIM_Cmd(IR_TIM, ENABLE);
 
-  HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
-  HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_2);
-  HAL_TIM_Base_Start_IT(&htim4);
+  // HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
+  // HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_2);
+  // HAL_TIM_Base_Start_IT(&htim4);
   /*========================================================================*/
   /* Header */	
   IRHeaderLowMin = TIMCLKValueKHz * IR_HEADER_LOW_MIN_US/1000;
@@ -376,32 +376,53 @@ void IR_ResetPacket(void)
   * @param  None
   * @retval None
   */
-void TIM4_IRQHandler (void)
+// void TIM4_IRQHandler (void)
+// {
+//   static uint32_t ICValue1;
+//   static uint32_t ICValue2;
+  
+//   /* IC1 Interrupt */
+//   if((__HAL_TIM_GET_FLAG(&htim4, TIM_FLAG_CC1) != RESET))
+//   {
+//     __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_CC1);
+//     /* Get the Input Capture value */
+//     // ICValue2 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_1);
+//     // IR_DataSampling(ICValue1, ICValue2); 
+//   }  /* IC2 Interrupt*/   
+//   else  if((__HAL_TIM_GET_FLAG(&htim4, TIM_FLAG_CC2) != RESET))
+//   {
+//     __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_CC2);
+//     /* Get the Input Capture value */
+//     // ICValue1 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_2);
+//   } 
+//   /* Checks whether the IR_TIM flag is set or not. */
+//   else if ((__HAL_TIM_GET_FLAG(&htim4, TIM_FLAG_UPDATE) != RESET))
+//   { 
+//     /* Clears the IR_TIM's pending flags*/
+//     __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
+    
+//     IR_ResetPacket();
+//   }
+//   else {
+
+//   }
+// }
+
+void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
   static uint32_t ICValue1;
   static uint32_t ICValue2;
-  
-  /* IC1 Interrupt */
-  if((__HAL_TIM_GET_FLAG(&htim4, TIM_FLAG_CC1) != RESET))
-  {
-    __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_CC1);
-    /* Get the Input Capture value */
-    ICValue2 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_1);
-    IR_DataSampling(ICValue1, ICValue2); 
-  }  /* IC2 Interrupt*/   
-  else  if((__HAL_TIM_GET_FLAG(&htim4, TIM_FLAG_CC2) != RESET))
-  {
-    __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_CC2);
-    /* Get the Input Capture value */
-    ICValue1 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_2);
-  } 
-  /* Checks whether the IR_TIM flag is set or not. */
-  else if ((__HAL_TIM_GET_FLAG(&htim4, TIM_FLAG_UPDATE) != RESET))
-  { 
-    /* Clears the IR_TIM's pending flags*/
-    __HAL_TIM_CLEAR_FLAG(&htim4, TIM_FLAG_UPDATE);
-    
-    IR_ResetPacket();
+  if (htim->Instance == TIM4){
+    if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1){
+      ICValue2 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_1);
+      IR_DataSampling(ICValue1, ICValue2); 
+    }
+    else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2) {
+      ICValue1 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_2);
+    }
+    else {
+      
+    }
   }
 }
 

@@ -34,6 +34,10 @@ uint8_t InitHM04(void){
     return 1;
 }
 
+hm04_t *GetHm04(void){
+    return &hm04;
+}
+
 uint8_t SetHm04Status(hm04_status_t status){
     hm04.status = status;
 
@@ -112,4 +116,42 @@ uint8_t SetHDC1080Status(hdc_status_t status){
     hm04.hdc1080.hdc_status = status;
 
     return 1;
+}
+
+
+#define TEMP_LOWEST 15
+#define TEMP_HIGHEST 25
+#define HUMI_LOWSET 20
+#define HUMI_HIGHEST 70
+uint8_t IsTempTooLow(void){
+    if (hm04.hdc1080.temperature < TEMP_LOWEST){
+        return 1;
+    }
+
+    return 0;
+}
+
+uint8_t IsTempTooHigh(void){
+    if (hm04.hdc1080.temperature > TEMP_HIGHEST) {
+        return 1;
+
+    }
+
+    return 0;
+}
+
+uint8_t IsHumiTooLow(void){
+    if (hm04.hdc1080.humidity < HUMI_LOWSET) {
+        return 1;
+    }
+
+    return 0;
+}
+
+uint8_t IsHumiTooHigh(void){
+    if (hm04.hdc1080.humidity > HUMI_HIGHEST) {
+        return 1;
+    }
+
+    return 0;
 }
