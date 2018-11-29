@@ -21,15 +21,19 @@ uint8_t InitHM04(void){
     /// second, initialize api of each component
     InitLamp();
     InitMist();
+    InitHDC1080();
 
     /// initialize hm04
     hm04.lamp = GetLamp();
     hm04.mist = GetMist();
+    hm04.hdc1080 = GetHDC1080();
+
     hm04.status = hm04_off;
     hm04.wifi_status = wifi_disconnected;
-    hm04.hdc1080.temperature = 0;
-    hm04.hdc1080.humidity = 0;
-    hm04.hdc1080.hdc_status = hdc_disconnected;
+    
+    // hm04.hdc1080.temperature = 0;
+    // hm04.hdc1080.humidity = 0;
+    // hm04.hdc1080.hdc_status = hdc_disconnected;
 
     return 1;
 }
@@ -87,71 +91,8 @@ wifi_status_t GetWifiStatus(void){
     
 }
 
-uint8_t GetHDC1080(float *temperature, float *humidify){
-    *temperature = hm04.hdc1080.temperature;
-    *humidify = hm04.hdc1080.humidity;
-
-    return 1;
-}
-
-uint8_t SetHDC1080(float *temperature, float *humidity){
-    hm04.hdc1080.temperature = *temperature;
-    hm04.hdc1080.humidity = *humidity;
-
-    return 1;
-}
 
 
-float GetHumidity(void){
-    return hm04.hdc1080.humidity;
-}
-float GetTemperature(void){
-    return hm04.hdc1080.temperature;
-}
-hdc_status_t GetHDC1080Status(void){
-    return hm04.hdc1080.hdc_status;
-}
-
-uint8_t SetHDC1080Status(hdc_status_t status){
-    hm04.hdc1080.hdc_status = status;
-
-    return 1;
-}
 
 
-#define TEMP_LOWEST 15
-#define TEMP_HIGHEST 25
-#define HUMI_LOWSET 20
-#define HUMI_HIGHEST 70
-uint8_t IsTempTooLow(void){
-    if (hm04.hdc1080.temperature < TEMP_LOWEST){
-        return 1;
-    }
 
-    return 0;
-}
-
-uint8_t IsTempTooHigh(void){
-    if (hm04.hdc1080.temperature > TEMP_HIGHEST) {
-        return 1;
-
-    }
-
-    return 0;
-}
-
-uint8_t IsHumiTooLow(void){
-    if (hm04.hdc1080.humidity < HUMI_LOWSET) {
-        return 1;
-    }
-
-    return 0;
-}
-
-uint8_t IsHumiTooHigh(void){
-    if (hm04.hdc1080.humidity > HUMI_HIGHEST) {
-        return 1;
-    }
-
-    return 0;
-}

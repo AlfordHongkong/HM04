@@ -713,8 +713,8 @@ void StartSensorsTask(void const * argument)
   for(;;)
   {
     GetTemperatureHumidity(&temperature, &humidity);
-    SetHDC1080(&temperature, &humidity);
-    osDelay(100);
+    UpdateTempHumi(&temperature, &humidity);
+    osDelay(500);
   }
   /* USER CODE END StartSensorsTask */
 }
