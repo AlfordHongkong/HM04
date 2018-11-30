@@ -93,14 +93,14 @@ typedef struct
 #define IR_TOTAL_BITS_COUNT           32
 
 #define IR_ONTIME_MIN_US              (560 - 50)
-#define IR_ONTIME_MAX_US              (2240 + 100)
+#define IR_ONTIME_MAX_US              (560 + 100)
 
 #define IR_HEADER_LOW_MIN_US          (9000 - 100)
 #define IR_HEADER_LOW_MAX_US          (9000 + 100)
 #define IR_HEADER_WHOLE_MIN_US        (9000 + 4500 - 100)
 #define IR_HEADER_WHOLE_MAX_US        (9000 + 4500 + 100)
 
-#define IR_VALUE_STEP_US              560
+#define IR_VALUE_STEP_US              1120
 #define IR_VALUE_MARGIN_US            100
 #define IR_VALUE_00_US                1120
 

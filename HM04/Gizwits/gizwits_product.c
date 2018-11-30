@@ -25,6 +25,7 @@
 #include "api_lamp.h"
 #include "api_mist.h"
 #include "api_hmi.h"
+#include "api_sensor.h"
 #include "bsp_gpio.h"
 
 static uint32_t timerMsCount;
@@ -422,7 +423,6 @@ void userHandle(void)
     // uint32_t valueremaining_water_percent;
     // float valuetemperature;
     // bool valueflag_water_shortage;
-    
 }
 
 /**

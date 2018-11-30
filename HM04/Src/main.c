@@ -50,7 +50,6 @@
 #include "main.h"
 #include "stm32f1xx_hal.h"
 #include "cmsis_os.h"
-#include "stm32f103xe.h"
 
 /* USER CODE BEGIN Includes */
 #include "bsp_gpio.h"
@@ -177,21 +176,25 @@ int main(void)
   //InitLampPWM();
   //StartSystemMessage();
   // TestLampPwm();
-  // IR_Init();
+  
   InitHM04();
   InitGizwits();
   InitHDC1080_sw_iic();
+  IR_Init();
   
-  // HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
-  // HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_2);
+  HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
+  HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_2);
   // HAL_TIM_Base_Start(&htim4);
   HAL_TIM_Base_Start_IT(&htim4);
   // gizwitsSetMode(WIFI_SOFTAP_MODE);  
 
-//  __HAL_RCC_DBGMCU_CLK_ENABLE();
-  // HAL_DBGMCU_EnableDBGStandbyMode();
-  // HAL_DBGMCU_EnableDBGStopMode();
-  // DBGMCU->APB1FZ |= DBGMCU_APB1_FZ_DBG_TIM4_STOP;
+    // __HAL_RCC_DBGMCU_CLK_ENABLE();
+    
+  //  HAL_DBGMCU_EnableDBGStandbyMode();
+  //  HAL_DBGMCU_EnableDBGStopMode();
+  //  __HAL_DBGMCU_FREEZE_TIM4();
+
+  //  DBGMCU->APB1FZ |= 1;
   printf("system started.\n");
   /* USER CODE END 2 */
 
@@ -441,7 +444,9 @@ static void MX_TIM4_Init(void)
 {
 
   TIM_ClockConfigTypeDef sClockSourceConfig;
+  TIM_SlaveConfigTypeDef sSlaveConfig;
   TIM_MasterConfigTypeDef sMasterConfig;
+  TIM_IC_InitTypeDef sConfigIC;
 
   htim4.Instance = TIM4;
   htim4.Init.Prescaler = 71;
@@ -460,9 +465,39 @@ static void MX_TIM4_Init(void)
     _Error_Handler(__FILE__, __LINE__);
   }
 
+  if (HAL_TIM_IC_Init(&htim4) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sSlaveConfig.SlaveMode = TIM_SLAVEMODE_RESET;
+  sSlaveConfig.InputTrigger = TIM_TS_TI1FP1;
+  sSlaveConfig.TriggerPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
+  sSlaveConfig.TriggerFilter = 0;
+  if (HAL_TIM_SlaveConfigSynchronization(&htim4, &sSlaveConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
   sMasterConfig.MasterOutputTrigger = TIM_TRGO_RESET;
   sMasterConfig.MasterSlaveMode = TIM_MASTERSLAVEMODE_DISABLE;
   if (HAL_TIMEx_MasterConfigSynchronization(&htim4, &sMasterConfig) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_FALLING;
+  sConfigIC.ICSelection = TIM_ICSELECTION_DIRECTTI;
+  sConfigIC.ICPrescaler = TIM_ICPSC_DIV1;
+  sConfigIC.ICFilter = 0;
+  if (HAL_TIM_IC_ConfigChannel(&htim4, &sConfigIC, TIM_CHANNEL_1) != HAL_OK)
+  {
+    _Error_Handler(__FILE__, __LINE__);
+  }
+
+  sConfigIC.ICPolarity = TIM_INPUTCHANNELPOLARITY_RISING;
+  sConfigIC.ICSelection = TIM_ICSELECTION_INDIRECTTI;
+  if (HAL_TIM_IC_ConfigChannel(&htim4, &sConfigIC, TIM_CHANNEL_2) != HAL_OK)
   {
     _Error_Handler(__FILE__, __LINE__);
   }

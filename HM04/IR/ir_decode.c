@@ -52,7 +52,6 @@
 // #include "stm32100e_eval_lcd.h"
 #include "ir_commands.c"
 
-
 extern TIM_HandleTypeDef htim4;
 
 /** @addtogroup STM32F10x_Infrared_Decoders
@@ -96,6 +95,9 @@ extern TIM_HandleTypeDef htim4;
   */
 __IO StatusYesOrNo IRFrameReceived = NO;   /*!< IR frame status */
   
+
+uint32_t sample_buff[100];
+
 /* IR bit definitions*/
 uint16_t IROnTimeMin = 0; 
 uint16_t IROnTimeMax = 0; 
@@ -152,7 +154,8 @@ void IR_DeInit(void)
   */
 void IR_Init(void)
 { 
-
+  /// set URS bit in TIMx_CR1 to 1: only counter overflow/underflow generates an update
+  __HAL_TIM_URS_ENABLE(&htim4);
   /*========  set gpio and nvic  ==========================================*/
 
   // GPIO_InitTypeDef GPIO_InitStructure;
@@ -222,7 +225,8 @@ void IR_Init(void)
 
   /*====== get timer clock  ===============================================*/
   // /* Timer Clock */
-  TIMCLKValueKHz = TIM_GetCounterCLKValue()/1000; 
+  // TIMCLKValueKHz = TIM_GetCounterCLKValue()/1000; 
+  TIMCLKValueKHz = 1000;
   /*====================================================================*/
 
 
@@ -260,7 +264,7 @@ void IR_Init(void)
   IRTimeOut = TIMCLKValueKHz * IR_TIME_OUT_US/1000;
 
   /* Set the TIM auto-reload register for each IR protocol */
-  htim4.Instance->ARR = IRTimeOut;
+  // htim4.Instance->ARR = IRTimeOut;
   /*======================================================================*/
   
 
@@ -331,11 +335,18 @@ void IR_Decode(IR_Frame_TypeDef *ir_frame)
     ir_frame->Command = (IRTmpPacket.data >> 20)& 0x7F;
     ir_frame->Address = (IRTmpPacket.data >> 27) & 0x1F;
 #endif
+
+#ifdef IR_NEC_PROTOCOL
+    ir_frame->User = (uint8_t)(IRTmpPacket.data >> 24);
+    ir_frame->UserInverse = (uint8_t)(IRTmpPacket.data >> 16);
+    ir_frame->Command = (uint8_t)(IRTmpPacket.data >> 8);
+    ir_frame->CommandInverse = (uint8_t)(IRTmpPacket.data);
+#endif
     
     /* Default state */
     IRFrameReceived = NO; 
     IR_ResetPacket();
-  
+
   }
 }
 
@@ -350,6 +361,7 @@ void IR_ResetPacket(void)
   IRTmpPacket.count = 0;
   IRTmpPacket.status = INITIAL_STATUS;
   IRTmpPacket.data = 0;
+
 }
 
 /**
@@ -408,17 +420,20 @@ void IR_ResetPacket(void)
 //   }
 // }
 
+uint32_t ICValue1;
+uint32_t ICValue2;
 void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 {
-  static uint32_t ICValue1;
-  static uint32_t ICValue2;
+  
   if (htim->Instance == TIM4){
     if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1){
       ICValue2 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_1);
+      sample_buff[sample_count] = ICValue2;
       IR_DataSampling(ICValue1, ICValue2); 
     }
     else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2) {
       ICValue1 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_2);
+      sample_buff[sample_count] = ICValue1;
     }
     else {
       
@@ -435,7 +450,6 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
 static void IR_DataSampling(uint32_t lowPulseLength, uint32_t wholePulseLength)
 {
   uint8_t  tmpBit = 0;
-  
   /* If the pulse timing is correct */
   if ((IRTmpPacket.status == IR_STATUS_RX)) 
   {
@@ -445,11 +459,16 @@ static void IR_DataSampling(uint32_t lowPulseLength, uint32_t wholePulseLength)
     {
       /* This operation fills in the incoming bit to the correct position in
       32 bit word*/
-      IRTmpPacket.data |= tmpBit;
       IRTmpPacket.data <<= 1;
+      IRTmpPacket.data |= tmpBit;
+      
       /* Increment the bit count  */
       IRTmpPacket.count++;
     }
+    else {
+      /// ir bit error
+    }
+
     /* If all bits identified */
     if (IRTmpPacket.count == IR_TOTAL_BITS_COUNT)
     {
@@ -518,8 +537,12 @@ static uint8_t IR_DecodeBit(uint32_t lowPulseLength , uint32_t wholePulseLength)
     {
       /* Check if the length is in given range */
       if ((wholePulseLength >= IRValue00 + (IRValueStep * i) - IRValueMargin) 
-          && (wholePulseLength <= IRValue00 + (IRValueStep * i) + IRValueMargin))
-        return i; /* Return bit value */
+          && (wholePulseLength <= IRValue00 + (IRValueStep * i) + IRValueMargin)){
+          
+        return ((i+1) & 0x01); ///< for test
+        return i;  /* Return bit value */
+      }
+        
     }
   }
   return IR_BIT_ERROR; /* No correct pulse length was found */

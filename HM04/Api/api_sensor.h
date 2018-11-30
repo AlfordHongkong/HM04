@@ -135,14 +135,14 @@ uint8_t IsTempTooHigh();
  * 
  * @return uint8_t 
  */
-uint8_t IsTempTooLow();
+uint8_t IsHumiTooLow();
 
 /**
  * @brief detect if humidity is upper the maximum threshold
  * 
  * @return uint8_t 
  */
-uint8_t IsTempTooHigh();
+uint8_t IsHumiTooHigh();
 
 
 #endif

@@ -71,15 +71,15 @@ uint8_t SetLampBrightness(uint8_t brightness){
         }
         else{
             /// wrong mode
-            return 0;
+            return 1;
         }
     }
     else{
         /// lamp is not turned on
-        return 0;
+        return 1;
     }
 
-    return 1;
+    return 0;
 }
 
 /**
@@ -109,7 +109,7 @@ uint8_t TurnOnLamp(void){
 
     }
     else{
-        return 0;
+        return 1;
     }
     //// then, changet the setting
     lamp.status = lamp_on;
@@ -117,7 +117,7 @@ uint8_t TurnOnLamp(void){
         SetHm04Status(hm04_on);
     }
 
-    return 1;
+    return 0;
 }
 
 /**
@@ -141,7 +141,7 @@ uint8_t TurnOffLamp(void){
     /// 
     lamp.status = lamp_off;
 
-    return 1;
+    return 0;
 }
 
 uint8_t SwitchLampMode(lamp_mode_t mode){
@@ -176,7 +176,7 @@ uint8_t SwitchLampMode(lamp_mode_t mode){
     /// at least, change the setting
     lamp.mode = mode;
     TurnOnLamp();
-    return 1;
+    return 0;
 }
 
 
@@ -204,12 +204,12 @@ uint8_t StartDynamicMode(void){
     lamp.static_color.b = DYNAMIC_MIN_B;
     dynamic_cation = r_go_up,
     osTimerStart(LampDynamicTimerHandle, 100);
-    return 1;
+    return 0;
 }
 
 uint8_t StopDynamicMode(void){
     osTimerStop(LampDynamicTimerHandle);
-    return 1;
+    return 0;
 }
 
 
