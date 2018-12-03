@@ -89,17 +89,48 @@ uint8_t StartMisting(void);
  * 
  */
 uint8_t StopMisting(void);
+
+
 #define TurnOffMistingDelayCallback_api_mist() TurnOffFan()
-uint8_t SwitchMistTimer(mist_timer_t timer);
+// uint8_t SwitchMistTimer(mist_timer_t timer);
+
+/**
+ * @brief switch the mode of misting
+ * 
+ * @param mode - mode to be set
+ * @return uint8_t - 0 means return success
+ */
 uint8_t SwitchMistMode(mist_mode_t mode);
 
+/**
+ * @brief check whether misting stated or not
+ * 
+ * @return uint8_t 
+ */
 uint8_t IsMistStarted(void);
 
 
-uint8_t SetMistMode(mist_mode_t mode);
-uint8_t SetMistTimer(mist_timer_t timer);
+/**
+ * @brief Get the Mist 
+ * 
+ * @return mist_t* 
+ */
 mist_t * GetMist(void);
+
+/**
+ * @brief Get the Mist Status 
+ * 
+ * @return mist_status_t 
+ */
 mist_status_t GetMistStatus(void);
+
+
+/**
+ * @brief Get the Mist Mode 
+ * 
+ * @return mist_mode_t 
+ */
+mist_mode_t GetMistMode(void);
 
 /**
  * @brief action for the key mist pressed

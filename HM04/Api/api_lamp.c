@@ -20,7 +20,8 @@ lamp_t lamp;
 extern osTimerId LampDynamicTimerHandle;
 
 
-
+static uint8_t StartDynamicMode(void);
+static uint8_t StopDynamicMode(void);
 
 
 void InitLamp(void){
@@ -54,33 +55,37 @@ uint8_t IsLampTurnedOn(void){
 		return 1;
 	return 0;
 }
-/**
- * @brief Set the Lamp Brightness object
- * 
- * @return uint8_t 
- */
-uint8_t SetLampBrightness(uint8_t brightness){
-    if(lamp.status == lamp_on){
-        if(lamp.mode == yellow_mode){
-            SetLampPWM(lamp_yellow, brightness);
-            lamp.brightness_percent = brightness;
-        }
-        else if(lamp.mode == white_mode){
-            SetLampPWM(lamp_white, brightness);
-            lamp.brightness_percent = brightness;
-        }
-        else{
-            /// wrong mode
-            return 1;
-        }
-    }
-    else{
-        /// lamp is not turned on
-        return 1;
-    }
 
-    return 0;
-}
+// /**
+//  * @brief Set the Lamp Brightness object
+//  * 
+//  * @return uint8_t 
+//  */
+// uint8_t SetLampBrightness(uint8_t brightness){
+//     uint8_t brightness_255;
+//     brightness_255 = ((uint16_t)brightness * 255 / 100);
+//     if(lamp.status == lamp_on){
+//         if(lamp.mode == yellow_mode){
+            
+//             SetLampPWM(lamp_yellow, brightness_255);
+//             lamp.brightness_percent = brightness;
+//         }
+//         else if(lamp.mode == white_mode){
+//             SetLampPWM(lamp_white, brightness_255);
+//             lamp.brightness_percent = brightness;
+//         }
+//         else{
+//             /// wrong mode
+//             return 1;
+//         }
+//     }
+//     else{
+//         /// lamp is not turned on
+//         return 1;
+//     }
+
+//     return 0;
+// }
 
 /**
  * @brief 
@@ -88,14 +93,15 @@ uint8_t SetLampBrightness(uint8_t brightness){
  * @return uint8_t 
  */
 uint8_t TurnOnLamp(void){
-    
+    uint8_t brightness_255;
+    brightness_255 = (uint16_t)lamp.brightness_percent * 255 / 100;
     /// first, actions
     /// checking the lamp mode
     if(lamp.mode == white_mode){
-        SetLampPWM(lamp_white, lamp.brightness_percent);
+        SetLampPWM(lamp_white, brightness_255);
     }
     else if(lamp.mode == yellow_mode){
-        SetLampPWM(lamp_yellow, lamp.brightness_percent);
+        SetLampPWM(lamp_yellow, brightness_255);
     }
     else if(lamp.mode == static_mode){ ///< 
         SetLampPWM(lamp_red, lamp.static_color.r);
@@ -147,31 +153,6 @@ uint8_t TurnOffLamp(void){
 uint8_t SwitchLampMode(lamp_mode_t mode){
     /// first, turn off all lam;
     TurnOffLamp();
-    // switch(mode){
-    //     case white_mode:
-    //     SetLampPWM(lamp_white, lamp.brightness_percent);
-    //     break;
-
-    //     case yellow_mode:
-    //     SetLampPWM(lamp_yellow, lamp.brightness_percent);
-    //     break;
-
-    //     case dynamic_mode:
-    //     StartDynamicMode();
-    //     break;
-
-    //     case static_mode:
-    //     SetLampPWM(lamp_red, lamp.static_color.r);
-    //     SetLampPWM(lamp_green, lamp.static_color.r);
-    //     SetLampPWM(lamp_blue, lamp.static_color.r);
-    //     break;
-
-    //     case scenario_mode:
-    //     break;
-
-    //     default:
-    //     break;
-    // }
 
     /// at least, change the setting
     lamp.mode = mode;
@@ -198,7 +179,7 @@ typedef enum{
 }dynamic_cation_t;
 dynamic_cation_t dynamic_cation;
 
-uint8_t StartDynamicMode(void){
+static uint8_t StartDynamicMode(void){
     lamp.static_color.r = DYNAMIC_MIN_R;
     lamp.static_color.g = DYNAMIC_MAX_G;
     lamp.static_color.b = DYNAMIC_MIN_B;
@@ -207,7 +188,7 @@ uint8_t StartDynamicMode(void){
     return 0;
 }
 
-uint8_t StopDynamicMode(void){
+static uint8_t StopDynamicMode(void){
     osTimerStop(LampDynamicTimerHandle);
     return 0;
 }
@@ -292,6 +273,14 @@ color_group_t GetLampColor(void){
     return lamp.static_color;
 }
 
+lamp_mode_t GetLampMode(void){
+    return lamp.mode;
+}
+
+uint8_t GetLampBrightness(void){
+    return lamp.brightness_percent;
+}
+
 uint8_t SetLampColor(color_group_t color){
     /// when the color is white and yellow
     lamp.static_color = color;
@@ -303,16 +292,17 @@ uint8_t SetLampColor(color_group_t color){
 
 
 
-// uint8_t SetLampWhite(uint8_t brightness){
-//     SetLampPWM(lamp_white, brightness);
-//     return 1;
-// }
+uint8_t SetLampWhite(uint8_t brightness){
+    lamp.brightness_percent = brightness;
+    SwitchLampMode(white_mode);
+    return 1;
+}
 
-// uint8_t SetLampYellow(uint8_t brightness){
-//     SetLampPWM(lamp_yellow, brightness);
-
-//     return 1;
-// }
+uint8_t SetLampYellow(uint8_t brightness){
+    lamp.brightness_percent = brightness;
+    SwitchLampMode(yellow_mode);
+    return 1;
+}
 
 uint8_t SetScenario(scenario_t scenario){
     /// first, change the setting

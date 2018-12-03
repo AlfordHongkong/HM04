@@ -31,10 +31,14 @@
  extern "C" {
 #endif
 
-#if !defined (IR_RC5_PROTOCOL) && !defined (IR_SIRC_PROTOCOL) && !defined (IR_NEC_PROTOCOL)
+#if !defined (IR_RC5_PROTOCOL) \
+&& !defined (IR_SIRC_PROTOCOL) \
+&& !defined (IR_NEC_PROTOCOL) \
+&& !defined (IR_ALFORD_PROTOCOL)
 //#define IR_RC5_PROTOCOL
 //#define IR_SIRC_PROTOCOL
 #define IR_NEC_PROTOCOL
+// #define IR_ALFORD_PROTOCOL
 #endif 
    
 /* Includes ------------------------------------------------------------------*/
@@ -48,8 +52,43 @@
   #include "sirc_decode.h"
 #elif defined IR_NEC_PROTOCOL
 #include "nec_decode.h"
+#elif defined IR_ALFORD_PROTOCOL
+#include "alford_decode.h"
 #endif
-   
+
+#if defined IR_ALFORD_PROTOCOL
+#define COMMAND_11 0X04
+#define COMMAND_12 0X05
+#define COMMAND_13 0X09
+#define COMMAND_14 0X08
+#define COMMAND_21 0X07
+#define COMMAND_31 0X06
+#define COMMAND_41 0X02
+#define COMMAND_42 0X03
+#define COMMAND_43 0X01
+#elif defined IR_NEC_PROTOCOL
+#define COMMAND_11 0X80
+#define COMMAND_12 0XC0
+#define COMMAND_13 0X20
+#define COMMAND_14 0X40
+#define COMMAND_21 0XA0
+#define COMMAND_31 0X60
+#define COMMAND_41 0XE0
+#define COMMAND_42 0X10
+#define COMMAND_43 0XFF
+#endif
+
+
+#define COMMAND_LAMP_BUTTON COMMAND_11
+#define COMMAND_MIST_TIMER  COMMAND_14
+#define COMMAND_WHITE       COMMAND_12
+#define COMMAND_YELLOW      COMMAND_13
+#define COMMAND_DYNAMIC     COMMAND_21
+#define COMMAND_SCENARIO    COMMAND_31
+#define COMMAND_VOLUME_PLUS      COMMAND_41
+#define COMMAND_VOLUME_MINUS     COMMAND_43
+#define COMMAND_PLAY_PAUSE  COMMAND_42
+
 /** @addtogroup STM32F10x_Infrared_Decoders
   * @{
   */
@@ -95,7 +134,7 @@
   */
 void IR_DeInit(void);
 void IR_Init(void);
-void IR_Decode(IR_Frame_TypeDef *ir_frame);
+uint8_t IR_Decode(IR_Frame_TypeDef *ir_frame);
 void IR_ResetPacket(void);
 
 #ifdef __cplusplus

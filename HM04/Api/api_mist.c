@@ -114,34 +114,6 @@ void StoppingMistingDelayCallback_api_mist(void){
                             
 ===============================================================================*/
 
-// /**
-//  * @brief 
-//  * 
-//  * @return uint8_t 
-//  */
-// uint8_t TurnOnMistAndFan(void){
-//     TurnOnFan();
-//     TurnOnMist();
-
-//     return 1;
-// }
-
-// /**
-//  * @brief 
-//  * 
-//  * @return uint8_t 
-//  */
-// uint8_t TurnOffMistAndFan(void){
-//     TurnOffMist();
-//     /// delay 10s to let the mist dissipating.
-//     osTimerStart(TurnOffMistingDelayTimerHandle, TURN_OFF_MISTING_DELAY);
-//     //TurnOffFan();
-
-//     return 1;
-// }
-
-
-
 uint8_t StartMisting(void){
     osStatus timerStatus;
     /// checking if lacking water
@@ -158,19 +130,19 @@ uint8_t StartMisting(void){
         StartIntermittentMode();
     }
     /// checking what mist_timer is 
-    switch(mist.timer){
-        case no_timer:
-        break;
-        case timer_60min:
-        StartMistTimer(60);
-        break;
-        case timer_120min:
-        StartMistTimer(120);
-        break;
+    // switch(mist.timer){
+    //     case no_timer:
+    //     break;
+    //     case timer_60min:
+    //     StartMistTimer(60);
+    //     break;
+    //     case timer_120min:
+    //     StartMistTimer(120);
+    //     break;
 
-        default:
-        break;
-    }
+    //     default:
+    //     break;
+    // }
     /// turn on fan and mist
     TurnOnFan();
     TurnOnMist();
@@ -196,9 +168,9 @@ uint8_t StopMisting(void){
             StopIntermittentMode();
         }
         /// checking timer
-        if(mist.timer != no_timer){
-            StopMistTimer();
-        }
+        // if(mist.timer != no_timer){
+        //     StopMistTimer();
+        // }
         /// stop fan and mist
         TurnOffMist();
         /// delay 10s to let the mist dissipating.
@@ -364,4 +336,8 @@ uint8_t IsMistStarted(void){
 
 mist_status_t GetMistStatus(void){
     return mist.status;
+}
+
+mist_mode_t GetMistMode(void){
+    return mist.mode;
 }

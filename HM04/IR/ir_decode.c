@@ -325,7 +325,7 @@ void IR_Init(void)
   *         the IR protocol fields (Address, Command,...).
   * @retval None
   */
-void IR_Decode(IR_Frame_TypeDef *ir_frame)
+uint8_t IR_Decode(IR_Frame_TypeDef *ir_frame)
 {  
   if(IRFrameReceived != NO) 
   {
@@ -339,15 +339,22 @@ void IR_Decode(IR_Frame_TypeDef *ir_frame)
 #ifdef IR_NEC_PROTOCOL
     ir_frame->User = (uint8_t)(IRTmpPacket.data >> 24);
     ir_frame->UserInverse = (uint8_t)(IRTmpPacket.data >> 16);
-    ir_frame->Command = (uint8_t)(IRTmpPacket.data >> 8);
     ir_frame->CommandInverse = (uint8_t)(IRTmpPacket.data);
+
+    ir_frame->Command = (uint8_t)(IRTmpPacket.last_data >> 8);
+#endif
+
+#ifdef IR_ALFORD_PROTOCOL
+    ir_frame->Command = (uint8_t)(IRTmpPacket.last_data);
 #endif
     
     /* Default state */
     IRFrameReceived = NO; 
     IR_ResetPacket();
-
+    return 0;
   }
+
+  return 1;
 }
 
 /**
@@ -428,12 +435,10 @@ void HAL_TIM_IC_CaptureCallback(TIM_HandleTypeDef *htim)
   if (htim->Instance == TIM4){
     if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_1){
       ICValue2 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_1);
-      sample_buff[sample_count] = ICValue2;
       IR_DataSampling(ICValue1, ICValue2); 
     }
     else if (htim->Channel == HAL_TIM_ACTIVE_CHANNEL_2) {
       ICValue1 = HAL_TIM_ReadCapturedValue(&htim4, TIM_CHANNEL_2);
-      sample_buff[sample_count] = ICValue1;
     }
     else {
       
@@ -474,6 +479,7 @@ static void IR_DataSampling(uint32_t lowPulseLength, uint32_t wholePulseLength)
     {
       /* Frame received*/
       IRFrameReceived = YES;
+      IRTmpPacket.last_data = IRTmpPacket.data;
     }
     /* Bit 15:the idle time between IR message and the inverted one */
     else if (IRTmpPacket.count == IR_BITS_COUNT)
@@ -539,7 +545,7 @@ static uint8_t IR_DecodeBit(uint32_t lowPulseLength , uint32_t wholePulseLength)
       if ((wholePulseLength >= IRValue00 + (IRValueStep * i) - IRValueMargin) 
           && (wholePulseLength <= IRValue00 + (IRValueStep * i) + IRValueMargin)){
           
-        return ((i+1) & 0x01); ///< for test
+        // return ((i+1) & 0x01); ///< for test
         return i;  /* Return bit value */
       }
         

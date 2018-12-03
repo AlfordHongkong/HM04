@@ -95,7 +95,7 @@ osTimerId PairingTimerHandle;
 
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
-
+IR_Frame_TypeDef IF_FRAME;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -655,18 +655,56 @@ void StartDefaultTask(void const * argument)
 {
 
   /* USER CODE BEGIN 5 */
+  event_t new;
   printf("Rtos started.\n");
   /* Infinite loop */
   for(;;)
   {
-    // TurnOffAllLamps();
-    // osDelay(500);
-    // TurnOnAllLamps();
-    // ToggleLed(led_1h);
-    // ToggleLed(led_2h);
-    // ToggleLed(led_on);
-    // ToggleLed(led_wifi);
-    osDelay(500);
+    if (IR_Decode(&IF_FRAME) == 0){
+      switch(IF_FRAME.Command){
+        case COMMAND_LAMP_BUTTON:
+        new = EVENT_IR_LAMP;
+        xQueueSend(eventsQueueHandle, &new, 10);
+        break;
+        case COMMAND_MIST_TIMER:
+        new = EVENT_IR_MIST;
+        xQueueSend(eventsQueueHandle, &new, 10);
+        break;
+        case COMMAND_WHITE:
+        new = EVENT_IR_WHITE;
+        xQueueSend(eventsQueueHandle, &new, 10);
+        break;
+        case COMMAND_YELLOW:
+        new = EVENT_IR_YELLOW;
+        xQueueSend(eventsQueueHandle, &new, 10);
+        break;
+        case COMMAND_DYNAMIC:
+        new = EVENT_IR_DYNAMIC;
+        xQueueSend(eventsQueueHandle, &new, 10);
+        break;
+        case COMMAND_SCENARIO:
+        new = EVENT_IR_SCENARIO;
+        xQueueSend(eventsQueueHandle, &new, 10);
+        break;
+        case COMMAND_VOLUME_PLUS:
+        new = EVENT_IR_VOLUME_PLUS;
+        xQueueSend(eventsQueueHandle, &new, 10);
+        break;
+        case COMMAND_VOLUME_MINUS:
+        new = EVENT_IR_VOLUME_MINUS;
+        xQueueSend(eventsQueueHandle, &new, 10);
+        break;
+        case COMMAND_PLAY_PAUSE:
+        new = EVENT_WIFI_SPEAKER_PLAY_PAUSE;
+        xQueueSend(eventsQueueHandle, &new, 10);
+        break;
+        default:
+        break;
+
+      }
+    }
+    
+    osDelay(100);
   }
   /* USER CODE END 5 */ 
 }

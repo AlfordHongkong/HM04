@@ -11,6 +11,13 @@
 
 #include <stdint.h>
 #include "bsp_lamp.h"
+
+
+#define LAMP_BRIGHTNESS_LEVEL_1 15
+#define LAMP_BRIGHTNESS_LEVEL_2 60
+#define LAMP_BRIGHTNESS_LEVEL_3 100
+
+
 /*==============================================================
                         Data types
 ==============================================================*/
@@ -66,7 +73,7 @@ typedef struct {
     lamp_mode_t mode;
     color_group_t static_color;
     scenario_t scenario;
-    uint8_t brightness_percent;
+    uint8_t brightness_percent; /// 0 - 100
     
 } lamp_t;
 
@@ -95,6 +102,14 @@ lamp_t* GetLamp(void);
  */
 lamp_status_t GetLampStatus(void);
 
+
+/**
+ * @brief Get the Lamp Mode object
+ * 
+ * @return lamp_mode_t 
+ */
+lamp_mode_t GetLampMode(void);
+
 /**
  * @brief detect if lamp is turned off or on
  * 
@@ -102,14 +117,15 @@ lamp_status_t GetLampStatus(void);
  */
 uint8_t IsLampTurnedOn(void);
 
-/**
- * @brief Set the Lamp Brightness 
- *        only when lamp is white mode or yellow mode,
- *         the brightness can be modified.
- * 
- * @return uint8_t - 0 means return success
- */
-uint8_t SetLampBrightness(uint8_t);
+// /**
+//  * @brief Set the Lamp Brightness 
+//  *        only when lamp is white mode or yellow mode,
+//  *         the brightness can be modified.
+//  * 
+//  * @
+//  * @return uint8_t - 0 means return success
+//  */
+// uint8_t SetLampBrightness(uint8_t brightness);
 
 /**
  * @brief turn on lamp and resume the last setting
@@ -140,19 +156,19 @@ uint8_t SwitchLampMode(lamp_mode_t mode);
  */
 void LampDynamicCallbackFromApiLamp(void);
 
-/**
- * @brief start the soft-timer of lamp dynamic mode
- * 
- * @return uint8_t - 0 means return success
- */
-uint8_t StartDynamicMode(void);
+// /**
+//  * @brief start the soft-timer of lamp dynamic mode
+//  * 
+//  * @return uint8_t - 0 means return success
+//  */
+// uint8_t StartDynamicMode(void);
 
-/**
- * @brief stop the soft-timer of lamp dynamic mode
- * 
- * @return uint8_t - 0 means return success
- */
-uint8_t StopDynamicMode(void);
+// /**
+//  * @brief stop the soft-timer of lamp dynamic mode
+//  * 
+//  * @return uint8_t - 0 means return success
+//  */
+// uint8_t StopDynamicMode(void);
 
 /**
  * @brief function for reacting the control board
@@ -168,6 +184,15 @@ void Do4KeyLampPressed(void);
  * @return color_group_t 
  */
 color_group_t GetLampColor(void);
+
+
+/**
+ * @brief Get the Lamp Brightness object
+ * 
+ * @return uint8_t - return the brightness 
+ */
+uint8_t GetLampBrightness(void);
+
 
 /**
  * @brief Set the Lamp Color object

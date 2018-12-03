@@ -27,6 +27,8 @@
 #include "api_hmi.h"
 #include "api_sensor.h"
 #include "bsp_gpio.h"
+#include "fsm.h"
+#include "cmsis_os.h"
 
 static uint32_t timerMsCount;
 uint8_t aRxBuffer;
@@ -59,8 +61,10 @@ extern UART_HandleTypeDef huart_wifi;
 * @return NULL
 * @ref gizwits_protocol.h
 */
+extern osMessageQId eventsQueueHandle;
 int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
 {
+  event_t e;
   uint8_t i = 0;
   dataPoint_t *dataPointPtr = (dataPoint_t *)gizdata;
   moduleStatusInfo_t *wifiData = (moduleStatusInfo_t *)gizdata;
@@ -84,201 +88,103 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
       case EVENT_lamp_status:
         currentDataPoint.valuelamp_status = dataPointPtr->valuelamp_status;
         GIZWITS_LOG("Evt: EVENT_lamp_status %d \n", currentDataPoint.valuelamp_status);
-        if(0x01 == currentDataPoint.valuelamp_status)
-        {
-          //user handle
-          TurnOnLamp();
-        }
-        else
-        {
-          //user handle    
-          TurnOffLamp();
-        }
+        e = EVENT_WIFI_LAMP_POWER;
+        xQueueSend(eventsQueueHandle, &e, 10);
+        
         break;
       case EVENT_mist_status:
         currentDataPoint.valuemist_status = dataPointPtr->valuemist_status;
         GIZWITS_LOG("Evt: EVENT_mist_status %d \n", currentDataPoint.valuemist_status);
-        if(0x01 == currentDataPoint.valuemist_status)
-        {
-          //user handle
-          StartMisting();
-        }
-        else
-        {
-          //user handle    
-          StopMisting();
-        }
+        e = EVENT_WIFI_MIST_POWRE;
+        xQueueSend(eventsQueueHandle, &e, 10);
+        // if(0x01 == currentDataPoint.valuemist_status)
+        // {
+        //   //user handle
+        //   StartMisting();
+        // }
+        // else
+        // {
+        //   //user handle    
+        //   StopMisting();
+        // }
         break;
       case EVENT_hm04_status:
         currentDataPoint.valuehm04_status = dataPointPtr->valuehm04_status;
         GIZWITS_LOG("Evt: EVENT_hm04_status %d \n", currentDataPoint.valuehm04_status);
-        if(0x01 == currentDataPoint.valuehm04_status)
-        {
-          //user handle
-        }
-        else
-        {
-          //user handle  
-          /// it's general off 
-          TurnOffHM04();  
-        }
+        e = EVENT_WIFI_HM04_POWER;
+        xQueueSend(eventsQueueHandle, &e, 10);
+        
         break;
 
       case EVENT_temperature_unit:
         currentDataPoint.valuetemperature_unit = dataPointPtr->valuetemperature_unit;
         GIZWITS_LOG("Evt: EVENT_temperature_unit %d\n", currentDataPoint.valuetemperature_unit);
-        switch(currentDataPoint.valuetemperature_unit)
-        {
-          case temperature_unit_VALUE0:
-            //user handle
-            break;
-          case temperature_unit_VALUE1:
-            //user handle
-            break;
-          default:
-            break;
-        }
+        
         break;
       case EVENT_lamp_mode:
         currentDataPoint.valuelamp_mode = dataPointPtr->valuelamp_mode;
         GIZWITS_LOG("Evt: EVENT_lamp_mode %d\n", currentDataPoint.valuelamp_mode);
-        lamp_mode_t mode;
-        mode = currentDataPoint.valuelamp_mode;
-        SwitchLampMode(mode);
-        // switch(currentDataPoint.valuelamp_mode)
-        // {
-        //   case lamp_mode_VALUE0:
-        //     //user handle
-        //     break;
-        //   case lamp_mode_VALUE1:
-        //     //user handle
-        //     break;
-        //   case lamp_mode_VALUE2:
-        //     //user handle
-        //     break;
-        //   case lamp_mode_VALUE3:
-        //     //user handle
-        //     break;
-        //   case lamp_mode_VALUE4:
-        //     //user handle
-        //     break;
-        //   default:
-        //     break;
-        // }
+        e = EVENT_WIFI_LAMP_MODE;
+        xQueueSend(eventsQueueHandle, &e, 10);
+        
         break;
       case EVENT_scenario:
         currentDataPoint.valuescenario = dataPointPtr->valuescenario;
         GIZWITS_LOG("Evt: EVENT_scenario %d\n", currentDataPoint.valuescenario);
-        switch(currentDataPoint.valuescenario)
-        {
-          case scenario_VALUE0:
-            //user handle
-            break;
-          case scenario_VALUE1:
-            //user handle
-            break;
-          case scenario_VALUE2:
-            //user handle
-            break;
-          case scenario_VALUE3:
-            //user handle
-            break;
-          case scenario_VALUE4:
-            //user handle
-            break;
-          case scenario_VALUE5:
-            //user handle
-            break;
-          default:
-            break;
-        }
+        e = EVENT_WIFI_LAMP_SCENARIO;
+        xQueueSend(eventsQueueHandle, &e, 10);
+        
         break;
       case EVENT_mist_mode:
         currentDataPoint.valuemist_mode = dataPointPtr->valuemist_mode;
         GIZWITS_LOG("Evt: EVENT_mist_mode %d\n", currentDataPoint.valuemist_mode);
-        mist_mode_t mistMode;
-        mistMode = currentDataPoint.valuemist_mode;
-        SwitchMistMode(mistMode);
-        // switch(currentDataPoint.valuemist_mode)
-        // {
-        //   case mist_mode_VALUE0:
-        //     //user handle
-        //     break;
-        //   case mist_mode_VALUE1:
-        //     //user handle
-        //     break;
-        //   default:
-        //     break;
-        // }
+        e = EVENT_WIFI_MIST_MODE;
+        xQueueSend(eventsQueueHandle, &e, 10);
+        // mist_mode_t mistMode;
+        // mistMode = currentDataPoint.valuemist_mode;
+        // SwitchMistMode(mistMode);
         break;
       case EVENT_mist_timer:
         currentDataPoint.valuemist_timer = dataPointPtr->valuemist_timer;
         GIZWITS_LOG("Evt: EVENT_mist_timer %d\n", currentDataPoint.valuemist_timer);
-        switch(currentDataPoint.valuemist_timer)
-        {
-          case mist_timer_VALUE0:
-            //user handle
-            break;
-          case mist_timer_VALUE1:
-            //user handle
-            break;
-          case mist_timer_VALUE2:
-            //user handle
-            break;
-          default:
-            break;
-        }
+      
         break;
       case EVENT_speaker_status:
         currentDataPoint.valuespeaker_status = dataPointPtr->valuespeaker_status;
         GIZWITS_LOG("Evt: EVENT_speaker_status %d\n", currentDataPoint.valuespeaker_status);
-        switch(currentDataPoint.valuespeaker_status)
-        {
-          case speaker_status_VALUE0:
-            //user handle
-            break;
-          case speaker_status_VALUE1:
-            //user handle
-            break;
-          default:
-            break;
-        }
+        
         break;
 
       case EVENT_lamp_static_color_r:
         currentDataPoint.valuelamp_static_color_r = dataPointPtr->valuelamp_static_color_r;
         GIZWITS_LOG("Evt:EVENT_lamp_static_color_r %d\n",currentDataPoint.valuelamp_static_color_r);
         //user handle
-        color_group_t color;
-        color = GetLampColor();
-        color.r = currentDataPoint.valuelamp_static_color_r;
-        SetLampColor(color);
-        SwitchLampMode(static_mode);
+        e = EVENT_WIFI_LAMP_STATIC_COLOR_R;
+        xQueueSend(eventsQueueHandle, &e, 10);
+        
         break;
       case EVENT_lamp_static_color_g:
         currentDataPoint.valuelamp_static_color_g = dataPointPtr->valuelamp_static_color_g;
         GIZWITS_LOG("Evt:EVENT_lamp_static_color_g %d\n",currentDataPoint.valuelamp_static_color_g);
         //user handle
-        color = GetLampColor();
-        color.g = currentDataPoint.valuelamp_static_color_g;
-        SetLampColor(color);
-        SwitchLampMode(static_mode);
+        e = EVENT_WIFI_LAMP_STATIC_COLOR_G;
+        xQueueSend(eventsQueueHandle, &e, 10);
+        
         break;
       case EVENT_lamp_static_color_b:
         currentDataPoint.valuelamp_static_color_b = dataPointPtr->valuelamp_static_color_b;
         GIZWITS_LOG("Evt:EVENT_lamp_static_color_b %d\n",currentDataPoint.valuelamp_static_color_b);
         //user handle
-        color = GetLampColor();
-        color.b = currentDataPoint.valuelamp_static_color_b;
-        SetLampColor(color);
-        SwitchLampMode(static_mode);
+        e = EVENT_WIFI_LAMP_STATIC_COLOR_B;
+        xQueueSend(eventsQueueHandle, &e, 10);
+        
         break;
       case EVENT_lamp_brightness_percent:
         currentDataPoint.valuelamp_brightness_percent = dataPointPtr->valuelamp_brightness_percent;
         GIZWITS_LOG("Evt:EVENT_lamp_brightness_percent %d\n",currentDataPoint.valuelamp_brightness_percent);
         //user handle
-        SetLampBrightness(currentDataPoint.valuelamp_brightness_percent);
-      
+        e = EVENT_WIFI_LAMP_BRIGHTNESS;
+        xQueueSend(eventsQueueHandle, &e, 10);      
         break;
       case EVENT_speaker_volum_percent:
         currentDataPoint.valuespeaker_volum_percent = dataPointPtr->valuespeaker_volum_percent;
