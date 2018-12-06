@@ -26,10 +26,10 @@ extern osMessageQId eventsQueueHandle;
 
 void StartFSM(void){
     // lamp_t *lamp;
-    uint8_t brightness_percentage = 0;
+//    uint8_t brightness_percentage = 0;
     event_t new;
-    static uint8_t lamp_white_brightness_level = 0;
-    static uint8_t lamp_yellow_brightness_level = 0;
+//    static uint8_t lamp_white_brightness_level = 0;
+//    static uint8_t lamp_yellow_brightness_level = 0;
     
     if(xQueueReceive(eventsQueueHandle, &new, 10)){
 
@@ -205,10 +205,10 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
    else if (event == EVENT_WIFI_LAMP_BRIGHTNESS){
        uint8_t brightness;
        brightness = currentDataPoint.valuelamp_brightness_percent;
-       if (mode == white_mode){
+       if (mode == yellow_mode){
            SetLampYellow(brightness);
        }
-       else if (mode == yellow_mode){
+       else if (mode == white_mode){
            SetLampWhite(brightness);
        }
        else {}

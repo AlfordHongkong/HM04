@@ -91,10 +91,18 @@
 #define fan_GPIO_Port GPIOC
 #define mist_Pin GPIO_PIN_8
 #define mist_GPIO_Port GPIOA
+#define bt_tx_Pin GPIO_PIN_9
+#define bt_tx_GPIO_Port GPIOA
+#define bt_rx_Pin GPIO_PIN_10
+#define bt_rx_GPIO_Port GPIOA
 #define HT_SDA_Pin GPIO_PIN_11
 #define HT_SDA_GPIO_Port GPIOA
 #define HT_SCL_Pin GPIO_PIN_12
 #define HT_SCL_GPIO_Port GPIOA
+#define HT_SCL_2_Pin GPIO_PIN_8
+#define HT_SCL_2_GPIO_Port GPIOB
+#define HT_SDA_2_Pin GPIO_PIN_9
+#define HT_SDA_2_GPIO_Port GPIOB
 
 /* ########################## Assert Selection ############################## */
 /**

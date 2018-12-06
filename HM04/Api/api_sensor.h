@@ -13,10 +13,13 @@
 #ifndef API_SENSOR_H
 #define API_SENSOR_H
 
-
-
 #include <stdint.h>
 
+
+#define TEMP_LOWEST 15
+#define TEMP_HIGHEST 26
+#define HUMI_LOWSET 0.2
+#define HUMI_HIGHEST 0.7
 
 /**
  * @brief hdc status

@@ -89,11 +89,6 @@ float GetTemperature(void){
 }
 
 
-#define TEMP_LOWEST 15
-#define TEMP_HIGHEST 25
-#define HUMI_LOWSET 20
-#define HUMI_HIGHEST 70
-
 uint8_t IsTempTooLow(void){
     if (hdc1080.temperature < TEMP_LOWEST){
         return 1;
