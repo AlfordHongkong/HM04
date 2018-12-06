@@ -298,9 +298,9 @@ void userHandle(void)
     currentDataPoint.valuelamp_status = lamp->status;
     currentDataPoint.valuelamp_mode = lamp->mode;
     currentDataPoint.valuescenario = lamp->scenario;
-    currentDataPoint.valuelamp_static_color_r = lamp->static_color.r;
-    currentDataPoint.valuelamp_static_color_g = lamp->static_color.g;
-    currentDataPoint.valuelamp_static_color_b = lamp->static_color.b;
+    // currentDataPoint.valuelamp_static_color_r = lamp->static_color.r;
+    // currentDataPoint.valuelamp_static_color_g = lamp->static_color.g;
+    // currentDataPoint.valuelamp_static_color_b = lamp->static_color.b;
     currentDataPoint.valuelamp_brightness_percent = lamp->brightness_percent;
     // currentDataPoint.valuespeaker_volum_percent = ;
 
