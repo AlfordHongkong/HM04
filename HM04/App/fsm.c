@@ -192,7 +192,21 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
        
    }
    else if (event == EVENT_IR_SCENARIO){
-       SwitchLampMode(scenario_mode);
+       if (mode != scenario_mode){
+           SwitchLampMode(scenario_mode);
+       }
+       else {
+           lamp_scenario_t scenario_l;
+           scenario_l = GetLampScenario();
+           if (scenario_l == tropical){
+               scenario_l = morninig;
+           }
+           else {
+               scenario_l++;
+           }
+           SwitchLampScenario(scenario_l);
+       }
+       
    }
    else if (event == EVENT_WIFI_LAMP_POWER){
        TurnOffLamp();
@@ -214,7 +228,9 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
        else {}
    }
    else if (event == EVENT_WIFI_LAMP_SCENARIO){
-
+       lamp_scenario_t scenario;
+       scenario = currentDataPoint.valuescenario;
+       SwitchLampScenario(scenario);
    }
    else if (event == EVENT_WIFI_LAMP_STATIC_COLOR_R){
         

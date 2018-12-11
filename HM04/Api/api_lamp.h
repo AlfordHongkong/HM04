@@ -55,6 +55,8 @@ typedef struct {
     uint8_t b;
 }color_group_t;
 
+typedef uint8_t (*Scenario_t)(void);
+
 typedef enum {
     morninig,
     dream,
@@ -63,7 +65,8 @@ typedef enum {
     nature,
     tropical,
     scenario_max
-}scenario_t;
+}lamp_scenario_t;
+
 /**
  * @brief lamp stucture
  * 
@@ -72,7 +75,7 @@ typedef struct {
     lamp_status_t status;
     lamp_mode_t mode;
     color_group_t static_color;
-    scenario_t scenario;
+    lamp_scenario_t scenario;
     uint8_t brightness_percent; /// 0 - 100
     
 } lamp_t;
@@ -109,6 +112,8 @@ lamp_status_t GetLampStatus(void);
  * @return lamp_mode_t 
  */
 lamp_mode_t GetLampMode(void);
+
+lamp_scenario_t GetLampScenario(void);
 
 /**
  * @brief detect if lamp is turned off or on
@@ -148,6 +153,9 @@ uint8_t TurnOffLamp(void);
  * @return uint8_t - 0 means return success
  */
 uint8_t SwitchLampMode(lamp_mode_t mode);
+
+
+uint8_t SwitchLampScenario(lamp_scenario_t scenario);
 
 /**
  * @brief lamp dynamic func 
@@ -224,7 +232,7 @@ uint8_t SetLampYellow(uint8_t brightness);
  * @param scenario 
  * @return uint8_t 
  */
-uint8_t SetScenario(scenario_t scenario);
+// uint8_t SetScenario(scenario_t scenario);
 
 
 

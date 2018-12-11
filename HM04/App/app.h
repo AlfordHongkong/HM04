@@ -30,6 +30,6 @@ fptrReadKey_t * GetReadKeysFuncs(void);
  */
 void KeysCallback(key_state_t keys_state[], uint8_t keys_hold_acc[]);
 
-
+void SystemStartSignal(void);
 
 #endif

@@ -14,14 +14,27 @@
 #include "stm32f1xx_hal.h"
 #include "cmsis_os.h"
 
-lamp_t lamp;
 
+
+
+Scenario_t Scenario;
+lamp_t lamp;
+uint8_t flag_stop_scenario;
 /// for lamp dynamic
 extern osTimerId LampDynamicTimerHandle;
 
 
 static uint8_t StartDynamicMode(void);
 static uint8_t StopDynamicMode(void);
+static uint8_t StartScenarioMode(void);
+static uint8_t StopScenarioMode(void);
+uint8_t ScenarioMorning(void);
+uint8_t ScenarioDream(void);
+uint8_t ScenarioNature(void);
+uint8_t ScenarioOcean(void);
+uint8_t ScenarioTropical(void);
+uint8_t ScenarioRomantic(void);
+static uint8_t ScenarioDelay(uint16_t one_ten_second);
 
 
 void InitLamp(void){
@@ -34,6 +47,9 @@ void InitLamp(void){
     lamp.static_color.g = 100;
     lamp.static_color.b = 150;
     lamp.brightness_percent = 50;
+
+    Scenario = ScenarioMorning;
+    flag_stop_scenario = 1;
 
 }
 
@@ -48,6 +64,10 @@ lamp_t* GetLamp(void){
 
 lamp_status_t GetLampStatus(void){
     return lamp.status;
+}
+
+lamp_scenario_t GetLampScenario(void){
+    return lamp.scenario;
 }
 
 uint8_t IsLampTurnedOn(void){
@@ -112,7 +132,7 @@ uint8_t TurnOnLamp(void){
         StartDynamicMode();
     }
     else if(lamp.mode == scenario_mode){
-
+        StartScenarioMode();
     }
     else{
         return 1;
@@ -144,6 +164,9 @@ uint8_t TurnOffLamp(void){
     if(lamp.mode == dynamic_mode)
         StopDynamicMode();
 
+    if (lamp.mode == scenario_mode){
+        StopScenarioMode();
+    }
     /// 
     lamp.status = lamp_off;
 
@@ -304,13 +327,218 @@ uint8_t SetLampYellow(uint8_t brightness){
     return 1;
 }
 
-uint8_t SetScenario(scenario_t scenario){
-    /// first, change the setting
-    //lamp.last_scenario = scenario;
-    /// then, do action
+// uint8_t SetScenario(scenario_t scenario){
+//     /// first, change the setting
+//     //lamp.last_scenario = scenario;
+//     /// then, do action
 
 
-    return 1;
+//     return 1;
+// }
+
+/**********************************************
+ *                 scenario fucntions
+**********************************************/
+
+uint8_t SwitchLampScenario(lamp_scenario_t scenario){
+    
+    TurnOffLamp();
+
+    /// at least, change the setting
+    lamp.scenario = scenario;
+    switch (scenario){
+        case morninig:
+        Scenario = ScenarioMorning;
+        break;
+        case dream:
+        Scenario = ScenarioDream;
+        break;
+        case romantic:
+        Scenario = ScenarioRomantic;
+        break;
+        case ocean:
+        Scenario = ScenarioOcean;
+        break;
+        case nature:
+        Scenario = ScenarioNature;
+        break;
+        case tropical:
+        Scenario = ScenarioTropical;
+        break;
+
+        default:
+        break;
+    }
+    TurnOnLamp();
+    return 0;
 }
 
 
+#define SCENARIO_MORING_TIME_DELTA    3600
+#define SCENARIO_DREAM_TIME_DELTA     9000
+#define SCENARIO_ROMANTIC_TIME_DELTA  1500
+#define SCENARIO_OCEAN_TIME_DELTA     2250
+#define SCENARIO_NATURE_TIME_DELTA    3000
+#define SCENARIO_TROPICAL_TIME_DELTA  2000
+
+#define SCENARIO_SPEED_TIMERS 50
+#define SCENARIO_DELAY_RUSOLUTION 10
+
+uint8_t ScenarioMorning(void){
+    uint8_t r = 255;
+    uint8_t g = 25;
+    uint8_t b = 0;
+    for (uint8_t i = 0; i<250; i++){
+        if (i < 205){
+            g++;
+        }
+        else {
+            b++;
+        }
+        SetLampPWM(lamp_red, r);
+        SetLampPWM(lamp_green, g);
+        SetLampPWM(lamp_blue, b);
+        if (ScenarioDelay(SCENARIO_MORING_TIME_DELTA  / SCENARIO_SPEED_TIMERS / SCENARIO_DELAY_RUSOLUTION))
+            return 1;
+    }
+
+    return 0;
+}
+
+uint8_t ScenarioDream(void){
+    uint8_t y = 255;
+    for (; y>0; y--){
+        SetLampPWM(lamp_yellow, y);
+        if (ScenarioDelay(SCENARIO_DREAM_TIME_DELTA  / SCENARIO_SPEED_TIMERS / SCENARIO_DELAY_RUSOLUTION))
+            return 1;
+    }
+    SetLampPWM(lamp_yellow, 0);
+
+    return 0;
+}
+
+uint8_t ScenarioRomantic(void){
+    uint8_t r = 255;
+    uint8_t g = 0;
+    uint8_t b = 220;
+    for (uint16_t i=0; i<600; i++){
+        if (i<220){
+            b--;
+        }
+        else if (i<300){
+            g++;
+        }
+        else if (i<380){
+            g--;
+        }
+        else {
+            b++;
+        }
+        SetLampPWM(lamp_red, r);
+        SetLampPWM(lamp_green, g);
+        SetLampPWM(lamp_blue, b);
+        if (ScenarioDelay(SCENARIO_ROMANTIC_TIME_DELTA  / SCENARIO_SPEED_TIMERS / SCENARIO_DELAY_RUSOLUTION))
+            return 1;
+    }
+
+    return 0;
+}
+
+uint8_t ScenarioOcean(void){
+    uint8_t r =0;
+    uint8_t g = 125;
+    uint8_t b = 50;
+
+    for (uint16_t i=0; i<400; i++){
+        if (i < 200){
+            b++;
+        }
+        else {
+            b--;
+        }
+
+        SetLampPWM(lamp_red, r);
+        SetLampPWM(lamp_green, g);
+        SetLampPWM(lamp_blue, b);
+        if (ScenarioDelay(SCENARIO_OCEAN_TIME_DELTA  / SCENARIO_SPEED_TIMERS / SCENARIO_DELAY_RUSOLUTION))
+            return 1;
+    }
+
+    return 0;
+}
+
+uint8_t ScenarioNature(void){
+    uint8_t r =0;
+    uint8_t g = 255;
+    uint8_t b = 20;
+
+    for (uint16_t i=0; i<300; i++){
+        if (i < 150){
+            r++;
+        }
+        else {
+            r--;
+        }
+
+        SetLampPWM(lamp_red, r);
+        SetLampPWM(lamp_green, g);
+        SetLampPWM(lamp_blue, b);
+        if (ScenarioDelay(SCENARIO_NATURE_TIME_DELTA  / SCENARIO_SPEED_TIMERS / SCENARIO_DELAY_RUSOLUTION))
+            return 1;
+    }
+
+    return 0;
+}
+
+uint8_t ScenarioTropical(void){
+    uint8_t r = 255;
+    uint8_t g = 40;
+    uint8_t b = 0;
+
+    for (uint16_t i=0; i<450; i++){
+        if (i < 215){
+            r--;
+            g++;
+        }
+        else if (i < 430) {
+            r++;
+            g--;
+        }
+        else{   
+            g--;
+        }
+
+        SetLampPWM(lamp_red, r);
+        SetLampPWM(lamp_green, g);
+        SetLampPWM(lamp_blue, b);
+        if (ScenarioDelay(SCENARIO_TROPICAL_TIME_DELTA  / SCENARIO_SPEED_TIMERS / SCENARIO_DELAY_RUSOLUTION))
+            return 1;
+    }
+
+    return 0;
+}
+
+static uint8_t ScenarioDelay(uint16_t one_ten_second){
+    for (uint16_t i=0; i<one_ten_second; i++){
+        osDelay(SCENARIO_DELAY_RUSOLUTION);
+        if (flag_stop_scenario){
+            return 1;
+        }
+    }
+
+    return 0;
+}
+
+extern osThreadId ScenarioTaskHandle;
+static uint8_t StartScenarioMode(void){
+    
+    osThreadResume(ScenarioTaskHandle);
+    flag_stop_scenario = 0;
+    
+    return 0;
+}
+static uint8_t StopScenarioMode(void){
+    // osThreadSuspend(ScenarioTaskHandle);
+    flag_stop_scenario = 1;
+    return 0;
+}

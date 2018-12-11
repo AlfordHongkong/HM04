@@ -110,6 +110,23 @@ void KeysCallback(key_state_t keys_state[], uint8_t keys_hold_acc[]){
 }
 
 
+void SystemStartSignal(void){
+    SetLampPWM(lamp_red, 100);
+    HAL_Delay(300);
+    SetLampPWM(lamp_red, 0);
+    SetLampPWM(lamp_green, 100);
+    HAL_Delay(300);
+    SetLampPWM(lamp_green, 0);
+    SetLampPWM(lamp_blue, 100);
+    HAL_Delay(300);
+    SetLampPWM(lamp_blue, 0);
+    SetLampPWM(lamp_yellow, 100);
+    HAL_Delay(300);
+    SetLampPWM(lamp_yellow, 0);
+    SetLampPWM(lamp_white, 100);
+    HAL_Delay(300);
+    SetLampPWM(lamp_white, 0);
+}
 
 
 

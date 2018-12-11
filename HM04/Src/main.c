@@ -85,6 +85,7 @@ osThreadId FsmTaskHandle;
 osThreadId KeysTaskHandle;
 osThreadId GizwitsTaskHandle;
 osThreadId SensorsTaskHandle;
+osThreadId ScenarioTaskHandle;
 osMessageQId eventsQueueHandle;
 osTimerId PairingHmiTimerHandle;
 osTimerId LampDynamicTimerHandle;
@@ -96,6 +97,11 @@ osTimerId PairingTimerHandle;
 /* USER CODE BEGIN PV */
 /* Private variables ---------------------------------------------------------*/
 IR_Frame_TypeDef IF_FRAME;
+
+const uint8_t firmware_version[] = "2.2.2";
+const uint8_t firmware_version_1 = 2;
+const uint8_t firmware_version_2 = 2;
+const uint8_t firmware_version_3 = 2;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -115,6 +121,7 @@ void StartFsmTask(void const * argument);
 void StartKeysTask(void const * argument);
 void StartGizwitsTask(void const * argument);
 void StartSensorsTask(void const * argument);
+void StartScenarioTask(void const * argument);
 void PairingHmiCallback(void const * argument);
 void LampDynamicCallback(void const * argument);
 void MistTimerCallback(void const * argument);
@@ -132,6 +139,7 @@ extern void vRegisterCLICommands( void );
 /* USER CODE END PFP */
 
 /* USER CODE BEGIN 0 */
+
 
 /* USER CODE END 0 */
 
@@ -195,7 +203,10 @@ int main(void)
   //  __HAL_DBGMCU_FREEZE_TIM4();
 
   //  DBGMCU->APB1FZ |= 1;
+  SystemStartSignal();
   printf("system started.\n");
+  printf("Firmware version: %d %d %d\n", firmware_version_1, firmware_version_2, firmware_version_3);
+  
   /* USER CODE END 2 */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -263,6 +274,10 @@ int main(void)
   /* definition and creation of SensorsTask */
   osThreadDef(SensorsTask, StartSensorsTask, osPriorityIdle, 0, 128);
   SensorsTaskHandle = osThreadCreate(osThread(SensorsTask), NULL);
+
+  /* definition and creation of ScenarioTask */
+  osThreadDef(ScenarioTask, StartScenarioTask, osPriorityIdle, 0, 128);
+  ScenarioTaskHandle = osThreadCreate(osThread(ScenarioTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
   /* add threads, ... */
@@ -800,6 +815,25 @@ void StartSensorsTask(void const * argument)
     osDelay(500);
   }
   /* USER CODE END StartSensorsTask */
+}
+
+/* StartScenarioTask function */
+void StartScenarioTask(void const * argument)
+{
+  /* USER CODE BEGIN StartScenarioTask */
+  extern Scenario_t Scenario;
+
+  /* Infinite loop */
+  for(;;)
+  {
+    if (scenario_mode == GetLampMode()){
+      if (Scenario()){
+
+      }
+    }
+    osThreadSuspend(ScenarioTaskHandle);
+  }
+  /* USER CODE END StartScenarioTask */
 }
 
 /* PairingHmiCallback function */
