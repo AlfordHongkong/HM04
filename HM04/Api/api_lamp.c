@@ -374,6 +374,8 @@ uint8_t SwitchLampScenario(lamp_scenario_t scenario){
 }
 
 
+#define SCENARIO_DEBUG
+
 #define SCENARIO_MORING_TIME_DELTA    3600
 #define SCENARIO_DREAM_TIME_DELTA     9000
 #define SCENARIO_ROMANTIC_TIME_DELTA  1500
@@ -381,7 +383,7 @@ uint8_t SwitchLampScenario(lamp_scenario_t scenario){
 #define SCENARIO_NATURE_TIME_DELTA    3000
 #define SCENARIO_TROPICAL_TIME_DELTA  2000
 
-#define SCENARIO_SPEED_TIMERS 50
+#define SCENARIO_SPEED_TIMERS 30
 #define SCENARIO_DELAY_RUSOLUTION 10
 
 uint8_t ScenarioMorning(void){
@@ -401,18 +403,26 @@ uint8_t ScenarioMorning(void){
         if (ScenarioDelay(SCENARIO_MORING_TIME_DELTA  / SCENARIO_SPEED_TIMERS / SCENARIO_DELAY_RUSOLUTION))
             return 1;
     }
-
+    #ifdef SCENARIO_DEBUG
+    printf("\n Morning done.\n");
+    #endif
     return 0;
 }
 
 uint8_t ScenarioDream(void){
-    uint8_t y = 255;
+    uint8_t y = 100;
+    uint8_t y255;
     for (; y>0; y--){
-        SetLampPWM(lamp_yellow, y);
+        y255 = (uint16_t)y * 255 / 100;
+        SetLampPWM(lamp_yellow, y255);
         if (ScenarioDelay(SCENARIO_DREAM_TIME_DELTA  / SCENARIO_SPEED_TIMERS / SCENARIO_DELAY_RUSOLUTION))
             return 1;
     }
     SetLampPWM(lamp_yellow, 0);
+
+    #ifdef SCENARIO_DEBUG
+    printf("\n Dream done.\n");
+    #endif
 
     return 0;
 }
@@ -441,6 +451,9 @@ uint8_t ScenarioRomantic(void){
             return 1;
     }
 
+    #ifdef SCENARIO_DEBUG
+    printf("\n Romantic done.\n");
+    #endif
     return 0;
 }
 
@@ -464,6 +477,9 @@ uint8_t ScenarioOcean(void){
             return 1;
     }
 
+    #ifdef SCENARIO_DEBUG
+    printf("\n Ocean done.\n");
+    #endif
     return 0;
 }
 
@@ -487,6 +503,9 @@ uint8_t ScenarioNature(void){
             return 1;
     }
 
+    #ifdef SCENARIO_DEBUG
+    printf("\n Nature done.\n");
+    #endif
     return 0;
 }
 
@@ -515,6 +534,9 @@ uint8_t ScenarioTropical(void){
             return 1;
     }
 
+    #ifdef SCENARIO_DEBUG
+    printf("\n Tropical done.\n");
+    #endif
     return 0;
 }
 
@@ -531,7 +553,12 @@ static uint8_t ScenarioDelay(uint16_t one_ten_second){
 
 extern osThreadId ScenarioTaskHandle;
 static uint8_t StartScenarioMode(void){
-    
+    if (flag_stop_scenario ==1){
+        /// need wating thread scenario to be suspended.
+        while (osThreadSuspended != osThreadGetState(ScenarioTaskHandle)){
+            
+        }
+    }
     osThreadResume(ScenarioTaskHandle);
     flag_stop_scenario = 0;
     

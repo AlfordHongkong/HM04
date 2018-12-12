@@ -20,6 +20,8 @@
 #include "gizwits_product.h"
 
 
+#define PRINT_FSM
+
 static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event);
 
 extern osMessageQId eventsQueueHandle;
@@ -139,9 +141,15 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
    }
 
    else if (event == EVENT_IR_LAMP){
+       #ifdef PRINT_FSM
+        printf(">>>> FSM: ir lamp on/off.\n");
+       #endif
        TurnOffLamp();
    }
    else if (event == EVENT_IR_WHITE){
+       #ifdef PRINT_FSM
+        printf(">>>> FSM: ir white.\n");
+       #endif
        if (mode != white_mode) {
            SetLampWhite(LAMP_BRIGHTNESS_LEVEL_2);
        }
@@ -163,6 +171,9 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
        
    }
    else if (event == EVENT_IR_YELLOW){
+       #ifdef PRINT_FSM
+        printf(">>>> FSM: ir yellow.\n");
+       #endif
        if (mode != yellow_mode){
            SetLampYellow(LAMP_BRIGHTNESS_LEVEL_2);
        }
@@ -183,6 +194,9 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
        }
    }
    else if (event == EVENT_IR_DYNAMIC){
+       #ifdef PRINT_FSM
+        printf(">>>> FSM: ir dynamic.\n");
+       #endif
        if (mode != dynamic_mode){
            SwitchLampMode(dynamic_mode);
        }
@@ -192,6 +206,9 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
        
    }
    else if (event == EVENT_IR_SCENARIO){
+       #ifdef PRINT_FSM
+        printf(">>>> FSM: ir scenario--");
+       #endif
        if (mode != scenario_mode){
            SwitchLampMode(scenario_mode);
        }
@@ -204,14 +221,44 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
            else {
                scenario_l++;
            }
+           #ifdef PRINT_FSM
+           switch(scenario_l){
+               case morninig:
+               printf("morning\n");
+               break;
+               case dream:
+               printf("dream\n");
+               break;
+               case romantic:
+               printf("romantic\n");
+               break;
+               case ocean:
+               printf("ocean\n");
+               break;
+               case nature:
+               printf("nature\n");
+               break;
+               case tropical:
+               printf("tropical\n");
+               break;
+               default:
+               break;
+           }
+           #endif
            SwitchLampScenario(scenario_l);
        }
        
    }
    else if (event == EVENT_WIFI_LAMP_POWER){
+       #ifdef PRINT_FSM
+        printf(">>>> FSM: wifi lamp power.\n");
+       #endif
        TurnOffLamp();
    }
    else if (event == EVENT_WIFI_LAMP_MODE){
+       #ifdef PRINT_FSM
+        printf(">>>> FSM: wifi lamp mode.\n");
+       #endif
         lamp_mode_t mode;
         mode = currentDataPoint.valuelamp_mode;
         SwitchLampMode(mode);
@@ -228,8 +275,35 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
        else {}
    }
    else if (event == EVENT_WIFI_LAMP_SCENARIO){
+       #ifdef PRINT_FSM
+        printf(">>>> FSM: wifi lamp scenario--");
+       #endif
        lamp_scenario_t scenario;
        scenario = currentDataPoint.valuescenario;
+       #ifdef PRINT_FSM
+           switch(scenario){
+               case morninig:
+               printf("morning\n");
+               break;
+               case dream:
+               printf("dream\n");
+               break;
+               case romantic:
+               printf("romantic\n");
+               break;
+               case ocean:
+               printf("ocean\n");
+               break;
+               case nature:
+               printf("nature\n");
+               break;
+               case tropical:
+               printf("tropical\n");
+               break;
+               default:
+               break;
+           }
+           #endif
        SwitchLampScenario(scenario);
    }
    else if (event == EVENT_WIFI_LAMP_STATIC_COLOR_R){
