@@ -797,7 +797,7 @@ void StartGizwitsTask(void const * argument)
   {
     userHandle();
     gizwitsHandle((dataPoint_t *)&currentDataPoint);
-    osDelay(200);
+    osDelay(100);
   }
   /* USER CODE END StartGizwitsTask */
 }

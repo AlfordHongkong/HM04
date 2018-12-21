@@ -88,32 +88,49 @@ int8_t gizwitsEventProcess(eventInfo_t *info, uint8_t *gizdata, uint32_t len)
       case EVENT_lamp_status:
         currentDataPoint.valuelamp_status = dataPointPtr->valuelamp_status;
         GIZWITS_LOG("Evt: EVENT_lamp_status %d \n", currentDataPoint.valuelamp_status);
-        e = EVENT_WIFI_LAMP_POWER;
-        xQueueSend(eventsQueueHandle, &e, 10);
+        // e = EVENT_WIFI_LAMP_POWER;
+        // xQueueSend(eventsQueueHandle, &e, 10);
+        if (0x01 == currentDataPoint.valuelamp_status){
+          e = EVENT_WIFI_LAMP_POWER_ON;
+          xQueueSend(eventsQueueHandle, &e, 10);
+        }
+        else{
+          e = EVENT_WIFI_LAMP_POWER_OFF;
+          xQueueSend(eventsQueueHandle, &e, 10);
+        }
         
         break;
       case EVENT_mist_status:
         currentDataPoint.valuemist_status = dataPointPtr->valuemist_status;
         GIZWITS_LOG("Evt: EVENT_mist_status %d \n", currentDataPoint.valuemist_status);
-        e = EVENT_WIFI_MIST_POWRE;
-        xQueueSend(eventsQueueHandle, &e, 10);
-        // if(0x01 == currentDataPoint.valuemist_status)
-        // {
-        //   //user handle
-        //   StartMisting();
-        // }
-        // else
-        // {
-        //   //user handle    
-        //   StopMisting();
-        // }
+        // e = EVENT_WIFI_MIST_POWER;
+        // xQueueSend(eventsQueueHandle, &e, 10);
+        if(0x01 == currentDataPoint.valuemist_status)
+        {
+          //user handle
+          e = EVENT_WIFI_MIST_POWER_ON;
+          xQueueSend(eventsQueueHandle, &e, 10);
+        }
+        else
+        {
+          //user handle    
+          e = EVENT_WIFI_MIST_POWER_OFF;
+          xQueueSend(eventsQueueHandle, &e, 10);
+        }
         break;
       case EVENT_hm04_status:
         currentDataPoint.valuehm04_status = dataPointPtr->valuehm04_status;
         GIZWITS_LOG("Evt: EVENT_hm04_status %d \n", currentDataPoint.valuehm04_status);
-        e = EVENT_WIFI_HM04_POWER;
-        xQueueSend(eventsQueueHandle, &e, 10);
-        
+        // e = EVENT_WIFI_HM04_POWER;
+        // xQueueSend(eventsQueueHandle, &e, 10);
+        if (0x01 == currentDataPoint.valuehm04_status){
+          e = EVENT_WIFI_HM04_POWER_ON;
+          xQueueSend(eventsQueueHandle, &e, 10);
+        }
+        else {
+          e = EVENT_WIFI_HM04_POWER_OFF;
+          xQueueSend(eventsQueueHandle, &e, 10);
+        }
         break;
 
       case EVENT_temperature_unit:

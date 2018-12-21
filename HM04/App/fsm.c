@@ -71,7 +71,7 @@ void StartFSM(void){
             else if (new == EVENT_IR_LAMP){
                 TurnOnLamp();
             }
-            else if (new == EVENT_WIFI_LAMP_POWER){
+            else if (new == EVENT_WIFI_LAMP_POWER_ON){
                 TurnOnLamp();
             }
         }
@@ -86,7 +86,7 @@ void StartFSM(void){
             else if (new == EVENT_IR_MIST){
                 Do4KeyMistPressed();
             }
-            else if (new == EVENT_WIFI_MIST_POWRE){
+            else if (new == EVENT_WIFI_MIST_POWER_OFF){
                 StopMisting();
             }
             else if (new == EVENT_WIFI_MIST_MODE){
@@ -98,8 +98,8 @@ void StartFSM(void){
                 }
                 else {}
             }
-            else if (new == EVENT_WIFI_HM04_POWER){
-                StopMisting();
+            else if (new == EVENT_WIFI_HM04_POWER_OFF){
+                TurnOffHM04();
             }
             else {}
         }
@@ -110,7 +110,7 @@ void StartFSM(void){
             else if (new == EVENT_IR_MIST){
                 Do4KeyMistPressed();
             }
-            else if (new == EVENT_WIFI_MIST_POWRE){
+            else if (new == EVENT_WIFI_MIST_POWER_ON){
                 StartMisting();
             }
             else {}
@@ -249,7 +249,7 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
        }
        
    }
-   else if (event == EVENT_WIFI_LAMP_POWER){
+   else if (event == EVENT_WIFI_LAMP_POWER_OFF){
        #ifdef PRINT_FSM
         printf(">>>> FSM: wifi lamp power.\n");
        #endif
@@ -325,8 +325,9 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
         SetLampColor(color);
         SwitchLampMode(static_mode);
    }
-   else if (event == EVENT_WIFI_HM04_POWER){
-       TurnOffLamp();
+   else if (event == EVENT_WIFI_HM04_POWER_OFF){
+       TurnOffHM04();
+
    }
    else {}
 }
