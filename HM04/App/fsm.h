@@ -33,7 +33,7 @@ typedef enum {
     EVENT_IR_SCENARIO,
     EVENT_IR_VOLUME_PLUS,
     EVENT_IR_VOLUME_MINUS,
-    ENENT_IR_PLAY_PAUSE,
+    EVENT_IR_PLAY_PAUSE,
     /// wifi remote events
     // EVENT_WIFI_HM04_POWER,
     EVENT_WIFI_HM04_POWER_ON,

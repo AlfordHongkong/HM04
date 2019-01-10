@@ -137,6 +137,7 @@ uint8_t TurnOnLamp(void){
     else{
         return 1;
     }
+
     //// then, changet the setting
     lamp.status = lamp_on;
     if(GetHm04Status() == hm04_off){
@@ -566,6 +567,7 @@ static uint8_t StartScenarioMode(void){
 }
 static uint8_t StopScenarioMode(void){
     // osThreadSuspend(ScenarioTaskHandle);
+
     flag_stop_scenario = 1;
     return 0;
 }

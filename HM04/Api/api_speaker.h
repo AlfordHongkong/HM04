@@ -55,9 +55,16 @@ uint8_t InitSpeaker(void);
  */
 speaker_t *GetSpeaker(void);
 
-
+bt_mode_t GetSpeakerMode(void);
 uint8_t SetSpeakerVolume(uint8_t volume);
 uint8_t FowardTheMusic(void);
 uint8_t BackTheMusic(void);
+uint8_t VolumPlus(void);
+uint8_t VolumMinus(void);
+uint8_t SwitchToBT(void);
+uint8_t SwitchToLinein(void);
+uint8_t PlayPause(void);
 
+
+uint8_t TestSpeaker(void);
 #endif

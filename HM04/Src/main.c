@@ -188,6 +188,7 @@ int main(void)
   InitHM04();
   InitGizwits();
   InitHDC1080_sw_iic();
+  InitSpeaker();
   IR_Init();
   
   HAL_TIM_IC_Start_IT(&htim4, TIM_CHANNEL_1);
@@ -720,7 +721,7 @@ void StartDefaultTask(void const * argument)
         xQueueSend(eventsQueueHandle, &new, 10);
         break;
         case COMMAND_PLAY_PAUSE:
-        new = EVENT_WIFI_SPEAKER_PLAY_PAUSE;
+        new = EVENT_IR_PLAY_PAUSE;
         xQueueSend(eventsQueueHandle, &new, 10);
         break;
         default:
@@ -741,6 +742,7 @@ void StartLightsTask(void const * argument)
   /* Infinite loop */
   for(;;)
   {
+    // TestSpeaker();
     osDelay(100);
   }
   /* USER CODE END StartLightsTask */
@@ -754,6 +756,7 @@ void StartCliTask(void const * argument)
   //prvUARTCommandConsoleTask(NULL);
   for(;;)
   {
+    
     osDelay(100);
   }
   /* USER CODE END StartCliTask */

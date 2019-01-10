@@ -18,6 +18,7 @@
 #include "cmsis_os.h"
 #include "gizwits_protocol.h"
 #include "gizwits_product.h"
+#include "api_speaker.h"
 
 
 #define PRINT_FSM
@@ -116,6 +117,50 @@ void StartFSM(void){
             else {}
         }
 
+        /// when speaker is bt mode
+        if (GetSpeakerMode() == bt){
+            if (IsLampTurnedOn()){
+                if (new == EVENT_IR_SCENARIO 
+                || new == EVENT_WIFI_LAMP_SCENARIO){
+                    SwitchToLinein();
+                } 
+                else if (new == EVENT_WIFI_LAMP_MODE){
+                    
+                    if (GetLampMode() == scenario_mode){
+                        SwitchToLinein();
+                    }
+                }
+                else if (new == EVENT_WIFI_LAMP_POWER_ON){
+                    if (GetLampMode() == scenario_mode){
+                        SwitchToLinein();
+                    }
+                }
+            }
+            
+                
+        }
+        else {  ///< when speaker is linein mode
+            if (new == EVENT_IR_LAMP
+            || new == EVENT_IR_DYNAMIC
+            || new == EVENT_IR_WHITE
+            || new == EVENT_IR_YELLOW
+            || new == EVENT_WIFI_LAMP_POWER_ON
+            || new == EVENT_WIFI_LAMP_POWER_OFF
+            // || EVENT_WIFI_LAMP_MODE
+            || new == EVENT_WIFI_LAMP_STATIC_COLOR_R
+            || new == EVENT_WIFI_LAMP_STATIC_COLOR_G
+            || new == EVENT_WIFI_LAMP_STATIC_COLOR_B
+            || new == EVENT_WIFI_LAMP_BRIGHTNESS){
+                SwitchToBT();
+            }
+            else if (new == EVENT_WIFI_LAMP_MODE){
+                
+                if (GetLampMode() != scenario_mode){
+                    SwitchToBT();
+                }
+            }
+        }
+
         /// whether hm04 is turned on or not.
         if (new == EVENT_PAIR_KEY_LONG){
             /// start pairing
@@ -124,6 +169,24 @@ void StartFSM(void){
             /// show the pair hmi
             StartPairing_hmi();
             SetWifiStatus(wifi_pairing);
+        }
+        else if (new == EVENT_IR_PLAY_PAUSE){
+            #ifdef PRINT_FSM
+                printf(">>>> FSM: ir paly/pause.\n");
+            #endif
+            PlayPause();
+        }
+        else if (new == EVENT_IR_VOLUME_PLUS){
+            #ifdef PRINT_FSM
+                printf(">>>> FSM: ir volume plus.\n");
+            #endif
+            VolumPlus();
+        }
+        else if (new == EVENT_IR_VOLUME_MINUS){
+            #ifdef PRINT_FSM
+                printf(">>>> FSM: ir volume Minus.\n");
+            #endif
+            VolumMinus();
         }
 
         if  (new == EVENT_STOP_PAIRING){
@@ -209,6 +272,7 @@ static void FSM_LAMP_ON_REGULAR(lamp_mode_t mode, event_t event){
        #ifdef PRINT_FSM
         printf(">>>> FSM: ir scenario--");
        #endif
+       
        if (mode != scenario_mode){
            SwitchLampMode(scenario_mode);
        }
